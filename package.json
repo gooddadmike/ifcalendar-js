@@ -5,7 +5,8 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "dry-run": "npm publish --dry-run"
   },
   "repository": {
     "type": "git",
@@ -14,7 +15,9 @@
   "homepage": "https://github.com/gooddadmike/ifcalendar-js#readme",
   "files": [
     "index.js",
-    "locales/"
+    "locales/",
+    "README.md",
+    "LICENSE"
   ],
   "bin": {
     "ifc": "cli.js"
@@ -25,7 +28,9 @@
     "international-fixed-calendar",
     "cotsworth",
     "eastman",
-    "kodak"
+    "yearal",
+    "kodak",
+    "13-month-calendar"
   ],
   "author": "Mike Searcy",
   "license": "MIT",
