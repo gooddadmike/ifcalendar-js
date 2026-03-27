@@ -19,9 +19,6 @@
     "README.md",
     "LICENSE"
   ],
-  "bin": {
-    "ifc": "cli.js"
-  },
   "keywords": [
     "ifc",
     "calendar",

@@ -1,5 +1,5 @@
 'use strict';
-const { toIFC, toGregorian, isLeap, EN } = require('../src/index.js');
+const { toIFC, toGregorian, isLeap, EN } = require('../index.js');
 
 // ─── isLeap ───────────────────────────────────────────────────────────────────
 describe('isLeap', () => {
@@ -40,7 +40,8 @@ describe('toIFC — default IFC string', () => {
   });
 
   test('Date object input', () => {
-    expect(toIFC(new Date('2026-03-22'))).toBe('IFC:2026-03-25');
+    // Construct with year/month/day to avoid UTC parsing
+    expect(toIFC(new Date(2026, 2, 22))).toBe('IFC:2026-03-25');
   });
 
   test('throws on invalid string', () => {
