@@ -1,0 +1,20 @@
+# Things we don't want on npm
+.git
+.github
+.gitignore
+.npmignore
+.vscode
+.idea
+test/
+tests/
+coverage/
+*.log
+*.md.bak
+.DS_Store
+
+# Only include these
+!index.js
+!src/
+!locales/
+!README.md
+!LICENSE
