@@ -1,5 +1,5 @@
 'use strict';
-const { toIFC, toGregorian, isLeap, EN } = require('../index.js');
+const { toIFC, toGregorian, isLeap, EN } = require('../src/index.js');
 
 // ─── isLeap ───────────────────────────────────────────────────────────────────
 describe('isLeap', () => {

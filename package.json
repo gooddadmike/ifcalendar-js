@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A lightweight JavaScript library for converting dates between the normal Gregorian calendar and the International Fixed Calendar (IFC).",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "jest",
     "dry-run": "npm publish --dry-run"

@@ -1,0 +1,268 @@
+<!--
+  ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
+  Lucide Icons — MIT — https://lucide.dev
+  Served via jsDelivr CDN — https://jsdelivr.com
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IFC Calendars</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="nav nav-bottom">
+    <a href="desk-clock.html"><i data-lucide="clock"></i></a>
+    <a href="index.html"><i data-lucide="home"></i></a>
+    <a href="calendars.html" class="active"><i data-lucide="calendar-days"></i></a>
+  </nav>
+
+  <div class="calendars-page">
+    <div class="conversion-display" id="conversion">Click any date</div>
+
+    <div class="calendars" id="calendars">
+
+      <div class="cal">
+        <h2>Gregorian</h2>
+        <div class="cal-nav">
+          <button id="gPrev">‹</button>
+          <select id="gMonth"></select>
+          <input type="number" id="gYear" min="1900" max="2100">
+          <button id="gNext">›</button>
+        </div>
+        <div class="weekdays" id="gWeekdays"></div>
+        <div class="days" id="gDays"></div>
+      </div>
+
+      <div class="cal">
+        <h2>International Fixed</h2>
+        <div class="cal-nav">
+          <button id="iPrev">‹</button>
+          <select id="iMonth"></select>
+          <input type="number" id="iYear" min="1900" max="2100">
+          <button id="iNext">›</button>
+        </div>
+        <div class="weekdays" id="iWeekdays"></div>
+        <div class="days" id="iDays"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { toIFC, toGregorian, isLeap }
+      from 'https://cdn.jsdelivr.net/npm/ifcalendar-js/src/index.esm.js';
+
+    const GREG_MONTHS = ['January','February','March','April','May','June',
+                         'July','August','September','October','November','December'];
+    const IFC_MONTHS  = ['January','February','March','April','May','June',
+                         'Sol','July','August','September','October','November','December'];
+    const IFC_SHORT   = ['Jan','Feb','Mar','Apr','May','Jun','Sol',
+                         'Jul','Aug','Sep','Oct','Nov','Dec'];
+    const GREG_SHORT  = ['Jan','Feb','Mar','Apr','May','Jun',
+                         'Jul','Aug','Sep','Oct','Nov','Dec'];
+    const WEEKDAYS    = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+    const pad = n => String(n).padStart(2, '0');
+
+    // ── Kiosk mode ───────────────────────────────────────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('kiosk') === 'true') {
+      document.querySelector('.nav').style.display = 'none';
+      document.querySelector('.calendars-page').style.setProperty('padding-bottom', '0.5rem');
+    }
+
+    // ── Today ────────────────────────────────────────────────────────────────
+    const now      = new Date();
+    const todayISO = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+
+    // ── State ────────────────────────────────────────────────────────────────
+    let selISO = todayISO;
+    let gView  = { year: now.getFullYear(), month: now.getMonth() };
+    let iView  = { year: now.getFullYear(), month: toIFC(todayISO).month };
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function ifcMonthDays(m, year) {
+      if (m === 6  && isLeap(year)) return 29;
+      if (m === 13)                 return 29;
+      return 28;
+    }
+
+    function setGridRows(gridEl, totalCells) {
+      const rows = Math.ceil(totalCells / 7);
+      gridEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    }
+
+    // ── Format conversion display ─────────────────────────────────────────────
+    function formatConversion(iso) {
+      const ifc  = toIFC(iso);
+      const d    = iso.split('-');
+      const gStr = `${GREG_SHORT[parseInt(d[1])-1]} ${parseInt(d[2])}, ${d[0]}`;
+      let ifcStr;
+      if      (ifc.isLeapDay)  ifcStr = `Jun 29 — Leap Day ${d[0]}`;
+      else if (ifc.isYearDay)  ifcStr = `Dec 29 — Year Day ${d[0]}`;
+      else {
+        const wd = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][ifc.weekday];
+        ifcStr   = `${IFC_SHORT[ifc.month-1]} ${ifc.day} (${wd}), ${d[0]}`;
+      }
+      return `${gStr}  ↔  ${ifcStr}`;
+    }
+
+    // ── Select a date ─────────────────────────────────────────────────────────
+    function selectDate(iso) {
+      selISO    = iso;
+      const ifc = toIFC(iso);
+      const d   = iso.split('-');
+      gView     = { year: parseInt(d[0]), month: parseInt(d[1]) - 1 };
+      iView     = { year: parseInt(d[0]), month: ifc.month };
+      render();
+    }
+
+    // ── Build Gregorian grid ──────────────────────────────────────────────────
+    function buildGregGrid() {
+      const { year, month } = gView;
+      const grid     = document.getElementById('gDays');
+      grid.innerHTML = '';
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDay  = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const el = document.createElement('div');
+        el.className = 'day empty';
+        grid.appendChild(el);
+      }
+      for (let d = 1; d <= lastDay; d++) {
+        const iso = `${year}-${pad(month+1)}-${pad(d)}`;
+        const el  = document.createElement('div');
+        el.className   = 'day';
+        el.textContent = d;
+        if (iso === selISO)   el.classList.add('selected');
+        if (iso === todayISO) el.classList.add('today');
+        el.addEventListener('click', () => selectDate(iso));
+        grid.appendChild(el);
+      }
+
+      setGridRows(grid, firstDay + lastDay);
+    }
+
+    // ── Build IFC grid ────────────────────────────────────────────────────────
+    function buildIfcGrid() {
+      const { year, month } = iView;
+      const grid     = document.getElementById('iDays');
+      grid.innerHTML = '';
+      const maxDay   = ifcMonthDays(month, year);
+
+      for (let d = 1; d <= maxDay; d++) {
+        const el  = document.createElement('div');
+        const iso = toGregorian(`IFC:${year}-${pad(month)}-${pad(d)}`);
+
+        if (d === 29) {
+          el.className   = 'day special';
+          el.textContent = month === 6 ? '✦ Leap Day' : '✦ Year Day';
+        } else {
+          el.className   = 'day';
+          el.textContent = d;
+        }
+
+        if (iso === selISO)   el.classList.add('selected');
+        if (iso === todayISO) el.classList.add('today');
+        el.addEventListener('click', () => selectDate(iso));
+        grid.appendChild(el);
+      }
+
+      setGridRows(grid, maxDay);
+    }
+
+    // ── Build static rows ─────────────────────────────────────────────────────
+    function buildWeekdays() {
+      ['gWeekdays','iWeekdays'].forEach(id => {
+        document.getElementById(id).innerHTML =
+          WEEKDAYS.map(w => `<span>${w}</span>`).join('');
+      });
+    }
+
+    function buildDropdowns() {
+      const gSel = document.getElementById('gMonth');
+      const iSel = document.getElementById('iMonth');
+      GREG_MONTHS.forEach((m, i) => {
+        gSel.innerHTML += `<option value="${i}">${m}</option>`;
+      });
+      IFC_MONTHS.forEach((m, i) => {
+        iSel.innerHTML += `<option value="${i+1}">${m}</option>`;
+      });
+    }
+
+    // ── Sync controls ─────────────────────────────────────────────────────────
+    function syncControls() {
+      document.getElementById('gMonth').value = gView.month;
+      document.getElementById('gYear').value  = gView.year;
+      document.getElementById('iMonth').value = iView.month;
+      document.getElementById('iYear').value  = iView.year;
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
+    function render() {
+      syncControls();
+      buildGregGrid();
+      buildIfcGrid();
+      document.getElementById('conversion').textContent =
+        formatConversion(selISO);
+    }
+
+    // ── Nav handlers ──────────────────────────────────────────────────────────
+    document.getElementById('gPrev').addEventListener('click', () => {
+      if (gView.month === 0) { gView.month = 11; gView.year--; }
+      else gView.month--;
+      render();
+    });
+    document.getElementById('gNext').addEventListener('click', () => {
+      if (gView.month === 11) { gView.month = 0; gView.year++; }
+      else gView.month++;
+      render();
+    });
+    document.getElementById('iPrev').addEventListener('click', () => {
+      if (iView.month === 1) { iView.month = 13; iView.year--; }
+      else iView.month--;
+      render();
+    });
+    document.getElementById('iNext').addEventListener('click', () => {
+      if (iView.month === 13) { iView.month = 1; iView.year++; }
+      else iView.month++;
+      render();
+    });
+    document.getElementById('gMonth').addEventListener('change', e => {
+      gView.month = parseInt(e.target.value); render();
+    });
+    document.getElementById('gYear').addEventListener('change', e => {
+      gView.year = parseInt(e.target.value); render();
+    });
+    document.getElementById('iMonth').addEventListener('change', e => {
+      iView.month = parseInt(e.target.value); render();
+    });
+    document.getElementById('iYear').addEventListener('change', e => {
+      iView.year = parseInt(e.target.value); render();
+    });
+
+    // ── Orientation detection ─────────────────────────────────────────────────
+    const cals = document.getElementById('calendars');
+    const ro   = new ResizeObserver(entries => {
+      const { width, height } = entries[0].contentRect;
+      const portrait = height > width;
+      cals.classList.toggle('layout-portrait',  portrait);
+      cals.classList.toggle('layout-landscape', !portrait);
+    });
+    ro.observe(document.body);
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    buildDropdowns();
+    buildWeekdays();
+    render();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+
+</body>
+</html>

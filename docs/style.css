@@ -1,0 +1,383 @@
+/* ── Variables ───────────────────────────────────────────────────────────── */
+:root {
+  --bg:            #0d1117;
+  --text:          #c9d1d9;
+  --accent:        #58a6ff;
+  --card:          #161b22;
+  --border:        #30363d;
+  --muted:         #8b949e;
+  --surface:       #21262d;
+  --nav-clearance: 4rem;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:      #ffffff;
+    --text:    #0d1117;
+    --accent:  #0969da;
+    --card:    #f6f8fa;
+    --border:  #d0d7de;
+    --muted:   #57606a;
+    --surface: #ffffff;
+  }
+}
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── Shared layout classes ───────────────────────────────────────────────── */
+.layout-portrait  { flex-direction: column; }
+.layout-landscape { flex-direction: row; }
+
+/* ── Nav bar ─────────────────────────────────────────────────────────────── */
+.nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 0.75rem;
+  background: var(--bg);
+  z-index: 100;
+}
+.nav-top    { top: 0;    border-bottom: 1px solid var(--border); }
+.nav-bottom { bottom: 0; border-top:    1px solid var(--border); }
+
+.nav a {
+  color: var(--muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.nav a:hover  { color: var(--text); }
+.nav a.active { color: var(--accent); }
+
+/* ── Clock page (desk-clock.html) ────────────────────────────────────────── */
+.clock-page {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: var(--nav-clearance);
+}
+
+.clock-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Date panels — base */
+.clock-date {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.5rem;
+}
+
+.clock-face {
+  flex: 1.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Portrait: tighter flex ratios pull dates closer to clock */
+.clock-layout.layout-portrait .clock-date {
+  flex: 0.6;
+}
+.clock-layout.layout-portrait .clock-face {
+  flex: 1;
+}
+.clock-layout.layout-portrait .clock-date:first-child {
+  align-items: flex-end;
+  padding-bottom: 0.25rem;
+}
+.clock-layout.layout-portrait .clock-date:last-child {
+  align-items: flex-start;
+  padding-top: 0.25rem;
+}
+
+/* Landscape: dates pushed inward toward clock */
+.clock-layout.layout-landscape .clock-date:first-child {
+  justify-content: flex-end;
+  padding-right: 1.5rem;
+}
+.clock-layout.layout-landscape .clock-date:last-child {
+  justify-content: flex-start;
+  padding-left: 1.5rem;
+}
+
+.clock {
+  font-size: clamp(4rem, 28vw, 22rem);
+  font-weight: 700;
+  letter-spacing: 4px;
+  margin: 0;
+  color: var(--text);
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+.clock-layout.layout-landscape .clock {
+  font-size: clamp(4rem, 22vh, 18rem);
+}
+.clock sup.ampm {
+  font-size: 0.25em;
+  font-weight: 400;
+  vertical-align: super;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.date-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  text-align: center;
+}
+.date-line .label {
+  font-weight: bold;
+  color: var(--accent);
+  font-size: clamp(0.6rem, 1.2vw, 1rem);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.date-line .value {
+  font-size: clamp(0.9rem, 2.5vw, 2rem);
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.date-line .value:hover { opacity: 0.7; }
+
+/* ── Calendars page (calendars.html) ─────────────────────────────────────── */
+.calendars-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.5rem var(--nav-clearance);
+}
+
+.conversion-display {
+  text-align: center;
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  min-height: 1.2em;
+  flex-shrink: 0;
+}
+
+.calendars {
+  display: flex;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.cal {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Separator and border radius — landscape */
+.calendars.layout-landscape .cal:first-child { border-radius: 12px 0 0 12px; }
+.calendars.layout-landscape .cal + .cal      { border-left: 1px solid var(--border); border-radius: 0 12px 12px 0; }
+
+/* Separator and border radius — portrait */
+.calendars.layout-portrait .cal:first-child  { border-radius: 12px 12px 0 0; }
+.calendars.layout-portrait .cal + .cal       { border-top: 1px solid var(--border); border-radius: 0 0 12px 12px; }
+
+.cal h2 {
+  text-align: center;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 0.5rem;
+  flex-shrink: 0;
+}
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+.cal-nav button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+.cal-nav button:hover         { border-color: var(--accent); color: var(--accent); }
+.cal-nav select,
+.cal-nav input[type="number"] {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.15rem 0.3rem;
+  font-size: 0.8rem;
+}
+.cal-nav select               { flex: 1; }
+.cal-nav input[type="number"] {
+  width: 58px;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.cal-nav input[type="number"]::-webkit-inner-spin-button,
+.cal-nav input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 0.15rem;
+  flex-shrink: 0;
+}
+.weekdays span {
+  text-align: center;
+  font-size: 0.6rem;
+  color: var(--muted);
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 0.1rem 0;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  flex: 1;
+  min-height: 0;
+}
+
+.day {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-family: monospace;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  position: relative;
+  user-select: none;
+  transition: background 0.1s, border-color 0.1s;
+}
+.day:hover                 { background: var(--surface); border-color: var(--border); }
+.day.empty                 { cursor: default; pointer-events: none; }
+.day.selected              { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: bold; }
+.day.today::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.day.today.selected::after { background: #fff; }
+
+.day.special {
+  grid-column: 1 / -1;
+  padding: 0.25rem;
+  font-size: 0.6rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.day.special:hover         { border-color: var(--accent); }
+.day.special.selected      { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── Small screen adjustments ────────────────────────────────────────────── */
+@media (max-height: 700px) {
+  .calendars-page {
+    padding: 0.25rem 0.25rem var(--nav-clearance);
+  }
+  .conversion-display {
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+  }
+  .cal {
+    padding: 0.4rem;
+  }
+  .cal h2 {
+    margin: 0 0 0.25rem;
+    font-size: 0.75rem;
+  }
+  .cal-nav {
+    margin-bottom: 0.25rem;
+  }
+}
+
+/* ── Info page (index.html) ──────────────────────────────────────────────── */
+.info-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1rem 1rem var(--nav-clearance);
+}
+#readme {
+  background: var(--card);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+#readme h1, #readme h2, #readme h3 { color: var(--accent); }
+#readme a                           { color: var(--accent); text-decoration: none; }
+#readme a:hover                     { text-decoration: underline; }
+#readme code {
+  background: var(--bg);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+#readme pre {
+  background: var(--bg);
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+}

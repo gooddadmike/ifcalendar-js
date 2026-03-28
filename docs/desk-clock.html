@@ -1,0 +1,120 @@
+<!--
+  @gooddadmike/ifc-js — MIT — https://github.com/gooddadmike/ifc-js
+  Lucide Icons — MIT — https://lucide.dev
+  Served via jsDelivr CDN — https://jsdelivr.com
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IFC Desk Clock</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav class="nav nav-bottom">
+    <a href="desk-clock.html" class="active"><i data-lucide="clock"></i></a>
+    <a href="index.html"><i data-lucide="home"></i></a>
+    <a href="calendars.html"><i data-lucide="calendar-days"></i></a>
+  </nav>
+
+  <div class="clock-page">
+    <div class="clock-layout" id="clock-layout">
+
+      <div class="clock-date">
+        <div class="date-line">
+          <span class="label">Gregorian</span>
+          <a class="value" id="greg-date" href="calendars.html">Loading…</a>
+        </div>
+      </div>
+
+      <div class="clock-face">
+        <h1 class="clock" id="clock">00:00</h1>
+      </div>
+
+      <div class="clock-date">
+        <div class="date-line">
+          <span class="label">IFC</span>
+          <a class="value" id="ifc-date" href="calendars.html">Loading…</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { toIFC } from 'https://cdn.jsdelivr.net/npm/@gooddadmike/ifc-js/src/index.esm.js';
+
+    const IFC_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Sol',
+                       'Jul','Aug','Sep','Oct','Nov','Dec'];
+    const WEEKDAYS  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    let use24 = false;
+
+    // ── Kiosk mode ───────────────────────────────────────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('kiosk') === 'true') {
+      document.querySelector('.nav').style.display = 'none';
+      document.querySelector('.clock-page').style.setProperty('padding-bottom', '0');
+    }
+
+    // ── Clock update ─────────────────────────────────────────────────────────
+    function update() {
+      const now  = new Date();
+      let   h    = now.getHours();
+      const m    = String(now.getMinutes()).padStart(2, '0');
+      const ampm = h >= 12 ? 'PM' : 'AM';
+
+      if (!use24) {
+        h = h % 12 || 12;
+        document.getElementById('clock').innerHTML =
+          `${h}:${m}<sup class="ampm">${ampm}</sup>`;
+      } else {
+        document.getElementById('clock').textContent =
+          `${String(h).padStart(2, '0')}:${m}`;
+      }
+
+      const gwd = now.toLocaleDateString('en-US', { weekday: 'short' });
+      const gmo = now.toLocaleDateString('en-US', { month:   'short' });
+      document.getElementById('greg-date').textContent =
+        `${gwd} ${gmo} ${now.getDate()}`;
+
+      const pad = n => String(n).padStart(2, '0');
+      const iso = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+      const ifc = toIFC(iso);
+      let ifcStr;
+      if      (ifc.isLeapDay)  ifcStr = 'Jun 29 LPD';
+      else if (ifc.isYearDay)  ifcStr = 'Dec 29 YRD';
+      else {
+        const wd = WEEKDAYS[ifc.weekday];
+        ifcStr   = `${wd} ${IFC_SHORT[ifc.month - 1]} ${ifc.day}`;
+      }
+      document.getElementById('ifc-date').textContent = ifcStr;
+    }
+
+    // ── Toggle 12/24 hour ────────────────────────────────────────────────────
+    document.getElementById('clock').addEventListener('click', () => {
+      use24 = !use24;
+      update();
+    });
+
+    setInterval(update, 60000);
+    update();
+
+    // ── Orientation detection ────────────────────────────────────────────────
+    const layout = document.getElementById('clock-layout');
+    const ro     = new ResizeObserver(entries => {
+      const { width, height } = entries[0].contentRect;
+      const portrait = height > width;
+      layout.classList.toggle('layout-portrait',  portrait);
+      layout.classList.toggle('layout-landscape', !portrait);
+    });
+    ro.observe(document.body);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+
+</body>
+</html>
