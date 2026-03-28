@@ -8,6 +8,7 @@
 test/
 tests/
 coverage/
+docs/
 *.log
 *.md.bak
 .DS_Store
