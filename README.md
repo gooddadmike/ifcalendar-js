@@ -41,7 +41,7 @@ Both demos are built entirely on this package via CDN. View source to see
 the reference implementation.
 
 ### 🕐 IFC Desk Clock
-[Open Desk Clock →](https://gooddadmike.github.io/ifc-js/desk-clock.html)
+[Open Desk Clock →](https://gooddadmike.github.io/ifcalendar-js/desk-clock.html)
 
 Keep it open on a spare monitor or tablet. Glancing at both dates together
 is how the IFC date starts to feel real rather than abstract. The same way
@@ -49,7 +49,7 @@ setting a watch to military time gradually builds the mental mapping until
 it becomes second nature.
 
 ### 📅 IFC Calendars
-[Open Calendars →](https://gooddadmike.github.io/ifc-js/calendars.html)
+[Open Calendars →](https://gooddadmike.github.io/ifcalendar-js/calendars.html)
 
 An interactive dual calendar. Find any date on either side and the equivalent
 date in the other calendar is shown instantly. Browse by month and year
@@ -61,8 +61,8 @@ Add `?kiosk=true` to either URL to hide the navigation bar for a cleaner
 display experience:
 
 ```
-https://gooddadmike.github.io/ifc-js/desk-clock.html?kiosk=true
-https://gooddadmike.github.io/ifc-js/calendars.html?kiosk=true
+https://gooddadmike.github.io/ifcalendar-js/desk-clock.html?kiosk=true
+https://gooddadmike.github.io/ifcalendar-js/calendars.html?kiosk=true
 ```
 
 On iOS, tap the share button in Safari and choose **Add to Home Screen** to
@@ -124,7 +124,7 @@ IFC:2024-06-29
 Turn any Gregorian date into an IFC date object. Pass an ISO string or
 nothing at all — no argument means today.
 ```js
-const { toIFC } = require('@gooddadmike/ifc-js');
+const { toIFC } = require('@gooddadmike/ifcalendar-js');
 
 toIFC('2026-03-22');
 // {
@@ -297,7 +297,7 @@ anyone should admit.
 ---
 ## Contributing 🤝
 
-See [CONTRIBUTING.md](https://github.com/gooddadmike/ifc-js/blob/main/CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](https://github.com/gooddadmike/ifcalendar-js/blob/main/CONTRIBUTING.md) for guidelines.
 
 ---
 
