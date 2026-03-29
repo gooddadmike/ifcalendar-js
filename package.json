@@ -2,28 +2,39 @@
   "name": "ifcalendar-js",
   "version": "1.0.1",
   "description": "A lightweight JavaScript library for converting dates between the normal Gregorian calendar and the International Fixed Calendar (IFC).",
-  "type": "commonjs",
-  "main": "src/index.js",
+  "type": "module",
   "scripts": {
-    "test": "jest",
+    "build": "tsup src/index.js --format cjs,esm --clean --dts",
+    "prepublishOnly": "npm run build",
     "dry-run": "npm publish --dry-run"
+    "test": "jest"
+  },
+  "files": [
+    "dist",
+    "locales",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gooddadmike/ifcalendar-js.git"
   },
   "homepage": "https://github.com/gooddadmike/ifcalendar-js#readme",
-  "files": [
-    "src/index.js",
-    "src/index.esm.js",
-    "locales/",
-    "README.md",
-    "LICENSE"
-  ],
   "keywords": [
-    "ifc",
-    "calendar",
-    "international-fixed-calendar",
+    "calendar", 
+    "ifc", 
+    "international-fixed-calendar", 
+    "date",
     "cotsworth",
     "eastman",
     "yearal",
@@ -31,8 +42,9 @@
     "13-month-calendar"
   ],
   "author": "Mike Searcy",
-  "license": "MIT",
+  "license": "MIT"
   "devDependencies": {
-    "jest": "^30.3.0"
+    "jest": "^30.3.0",
+    "tsup": "^8.5.1"
   }
 }
