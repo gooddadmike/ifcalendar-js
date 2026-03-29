@@ -275,12 +275,18 @@ Replace `'UTC'` with any IANA timezone string such as `'America/New_York'`,
 
 ## Go Deeper 🐇
 
+## Going deeper with dates & time 🐇
+
+**ifcalendar-js** focuses specifically on converting between the **International Fixed Calendar (IFC)** and the standard Gregorian calendar, including nice human-readable formatting.
+
 Curious about date and time handling in general? These are worth knowing about:
 
-- [date-fns](https://date-fns.org) — modern JavaScript date utility library, functional and tree-shakeable
-- [Temporal](https://tc39.es/proposal-temporal/docs/) — the upcoming JavaScript standard for date and time, fixing everything `Date` got wrong
-- [Luxon](https://moment.github.io/luxon/) — powerful and friendly date/time library with full timezone support
-- [day.js](https://day.js.org) — tiny 2kb date library with a familiar API
+- **[date-fns](https://date-fns.org/)** — Modern, functional, tree-shakeable utilities for the Gregorian calendar
+- **[Luxon](https://moment.github.io/luxon/)** — Powerful formatting, timezones, and internationalization
+- **[day.js](https://day.js.org/)** — Tiny (~2kb) with a familiar Moment-like API
+- **[Temporal](https://tc39.es/proposal-temporal/)** — The new official JavaScript date/time API (part of ECMAScript 2026, already shipping in modern browsers)
+
+If you're building a full-featured date picker or need heavy timezone handling, combine **ifcalendar-js** with one of the above.
 
 The white rabbit goes as deep as you want. 🐇
 
@@ -289,10 +295,10 @@ The white rabbit goes as deep as you want. 🐇
 ## A Note on How This Was Built 🤖
 
 The ideation, code, and tests for this package were written lovingly alongside
-[Claude.ai](https://claude.ai). Not generated and pasted — actually discussed,
+[Claude.ai](https://claude.ai) and a little [Grok](https://grok.com] when tokens were low. 
+Not simply generated and pasted - actually discussed,
 debugged, argued over, and refined through conversation. The bugs were real,
-the fixes were earned, and the documentation went through more drafts than
-anyone should admit.
+the fixes were earned, and the documentation thoughtfully crafted.
 
 ---
 ## Contributing 🤝

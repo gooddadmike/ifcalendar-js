@@ -1,5 +1,5 @@
 'use strict';
-import EN from '../locales/en.js';
+import * as EN from '../locales/en.cjs';
 
 // ─── Core utilities ───────────────────────────────────────────────────────────
 /**
@@ -85,10 +85,6 @@ function doyToIfc(year, doy) {
   }
 
   const adjDoy = leap && doy > 169 ? doy - 1 : doy;
-
-  // Debug output — remove or comment out before publishing
-  // .log(`Debug: year=${year}, doy=${doy}, leap=${leap}, adjDoy=${adjDoy}`);
-
   const month = Math.floor((adjDoy - 1) / 28) + 1;
   const day = ((adjDoy - 1) % 28) + 1;
   const weekday = (day - 1) % 7;
