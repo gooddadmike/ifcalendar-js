@@ -14,7 +14,8 @@
   },
   "homepage": "https://github.com/gooddadmike/ifcalendar-js#readme",
   "files": [
-    "index.js",
+    "src/index.js",
+    "src/index.esm.js",
     "locales/",
     "README.md",
     "LICENSE"
