@@ -39,54 +39,54 @@
   </div>
 
   <script type="module">
-    // ── IFC ──────────────────────────────────────────────────────────────────
-    import { toIFC } from 'https://cdn.jsdelivr.net/npm/ifcalendar-js/src/index.esm.js';
+    // ── Import from jsDelivr CDN ─────────────────────────────────────────────
+    import { toIFC } from "https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js";
 
     let use24 = false;
 
     function update() {
       const now = new Date();
 
-      // Clock display
-      let h      = now.getHours();
-      const m    = String(now.getMinutes()).padStart(2, '0');
+      // ── Clock Display (12/24 hour toggle) ─────────────────────────────────
+      let h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, '0');
       const ampm = h >= 12 ? 'PM' : 'AM';
+
       if (!use24) {
         h = h % 12 || 12;
-        document.getElementById('clock').innerHTML =
+        document.getElementById('clock').innerHTML = 
           `${h}:${m}<sup class="ampm">${ampm}</sup>`;
       } else {
-        document.getElementById('clock').textContent =
+        document.getElementById('clock').textContent = 
           `${String(h).padStart(2, '0')}:${m}`;
       }
 
-      // IFC date — use 'short' format directly, no manual formatting needed
-      const pad = n => String(n).padStart(2, '0');
-      const iso = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-      document.getElementById('ifc-date').textContent = toIFC(iso, 'short');
+      // ── IFC Date (using new short/long formats) ───────────────────────────
+      document.getElementById('ifc-date').textContent = toIFC(now, 'short');
 
-      // Gregorian date
+      // ── Gregorian Date ────────────────────────────────────────────────────
       const gwd = now.toLocaleDateString('en-US', { weekday: 'short' });
-      const gmo = now.toLocaleDateString('en-US', { month:   'short' });
-      document.getElementById('greg-date').textContent =
+      const gmo = now.toLocaleDateString('en-US', { month: 'short' });
+      document.getElementById('greg-date').textContent = 
         `${gwd} ${gmo} ${now.getDate()}`;
     }
 
-    // ── Toggle 12/24 hour ────────────────────────────────────────────────────
+    // ── Toggle 12/24 hour format ─────────────────────────────────────────────
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       update();
     });
 
+    // Update every minute
     setInterval(update, 60000);
-    update();
+    update(); // initial call
 
     // ── Orientation detection ────────────────────────────────────────────────
     const layout = document.getElementById('clock-layout');
-    const ro     = new ResizeObserver(entries => {
+    const ro = new ResizeObserver(entries => {
       const { width, height } = entries[0].contentRect;
       const portrait = height > width;
-      layout.classList.toggle('layout-portrait',  portrait);
+      layout.classList.toggle('layout-portrait', portrait);
       layout.classList.toggle('layout-landscape', !portrait);
     });
     ro.observe(document.body);

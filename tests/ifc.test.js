@@ -153,7 +153,11 @@ describe('toIFC — locale override', () => {
                      'Jul','Aoû','Sep','Oct','Nov','Déc'],
     ifcMonths:      ['Janvier','Février','Mars','Avril','Mai','Juin','Sol',
                      'Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
-    weekdaysShort:  ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
+    gregMonthsShort: ['Jan','Fév','Mar','Avr','Mai','Jun','Jul',
+                      'Aoû','Sep','Oct','Nov','Déc'],
+    gregMonths:      ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet',
+                      'Août','Septembre','Octobre','Novembre','Décembre'],
+  weekdaysShort:  ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
     weekdays:       ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']
   };
 
