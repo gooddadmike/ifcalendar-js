@@ -1,5 +1,5 @@
 'use strict';
-import * as EN from '../locales/en.cjs';
+import EN from '../locales/en.js';
 
 // ─── Core utilities ───────────────────────────────────────────────────────────
 /**
@@ -237,10 +237,10 @@ function toGregorian(input, format, locale = EN) {
   const weekday = new Date(year, g.month, g.day).getDay();
 
   if (format === 'short') {
-    return `${locale.weekdaysShort[weekday]} ${locale.ifcMonthsShort[g.month]} ${g.day} ${year}`;
+    return `${locale.weekdaysShort[weekday]} ${locale.gregMonthsShort[g.month]} ${g.day} ${year}`;
   }
   if (format === 'long') {
-    return `${locale.weekdays[weekday]} ${locale.ifcMonths[g.month]} ${g.day}, ${year}`;
+    return `${locale.weekdays[weekday]} ${locale.gregMonths[g.month]} ${g.day}, ${year}`;
   }
   return iso;
 }

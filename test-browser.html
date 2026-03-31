@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ifcalendar-js @1.0.2 Test</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 40px; line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; max-width: 1000px; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+    th { background: #f0f0f0; }
+    .highlight { background: #fff3cd; }
+  </style>
+</head>
+<body>
+  <h1>ifcalendar-js @1.0.2 — Test &amp; Demo</h1>
+  <p>This page tests the library loaded directly from jsDelivr CDN.</p>
+
+  <table id="results">
+    <thead>
+      <tr>
+        <th>Test Case</th>
+        <th>Input</th>
+        <th>Short Format</th>
+        <th>Long Format</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <script type="module">
+    import { toIFC, toGregorian } from "https://cdn.jsdelivr.net/npm/ifcalendar-js@1.0.2/dist/index.js";
+
+    const tests = [
+      { name: "Today",                  input: null,                    type: "toIFC" },
+      { name: "Normal Date",            input: "2026-03-25",            type: "toIFC" },
+      { name: "Leap Day (Greg → IFC)",  input: "2024-06-17",            type: "toIFC" },
+      { name: "Year Day (Greg → IFC)",  input: "2024-12-31",            type: "toIFC" },
+      { name: "Sol Month",              input: "2026-07-15",            type: "toIFC" },
+      { name: "Post Leap Day",          input: "2024-08-01",            type: "toIFC" },
+
+      { name: "IFC → Gregorian",        input: "IFC:2026-03-25",        type: "toGreg" },
+      { name: "Leap Day (IFC → Greg)",  input: "IFC:2024-06-29",        type: "toGreg" },
+      { name: "Year Day (IFC → Greg)",  input: "IFC:2024-13-29",        type: "toGreg" },
+      { name: "July (should not show Sol)", input: "IFC:2024-08-01",  type: "toGreg" }
+    ];
+
+    const tbody = document.getElementById('tableBody');
+
+    tests.forEach(test => {
+      let short = '', long = '';
+
+      try {
+        if (test.type === "toIFC") {
+          short = toIFC(test.input, 'short');
+          long  = toIFC(test.input, 'long');
+        } else {
+          short = toGregorian(test.input, 'short');
+          long  = toGregorian(test.input, 'long');
+        }
+      } catch (e) {
+        short = long = `Error: ${e.message}`;
+      }
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${test.name}</td>
+        <td><code>${test.input || 'today'}</code></td>
+        <td>${short}</td>
+        <td>${long}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  </script>
+</body>
+</html>
