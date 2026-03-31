@@ -1,6 +1,6 @@
 {
   "name": "ifcalendar-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A lightweight JavaScript library for converting dates between the normal Gregorian calendar and the International Fixed Calendar (IFC).",
   "type": "module",
   "bin": {
@@ -40,7 +40,7 @@
   "jest": {
     "testEnvironment": "node",
     "moduleNameMapper": {
-     "^(\\.{1,2}/.*)\\.js$": "$1.js"
+      "^(\\.{1,2}/.*)\\.js$": "$1.js"
     },
     "testMatch": [
       "**/__tests__/**/*.js",
