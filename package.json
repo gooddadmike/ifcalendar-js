@@ -1,16 +1,19 @@
 {
   "name": "ifcalendar-js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A lightweight JavaScript library for converting dates between the normal Gregorian calendar and the International Fixed Calendar (IFC).",
   "type": "module",
   "scripts": {
-    "build": "tsup src/index.js --format cjs,esm --clean --dts",
+    "build": "tsup src/index.js --format cjs,esm --clean --dts --minify --sourcemap --no-sourcemap",
     "prepublishOnly": "npm run build",
     "dry-run": "npm publish --dry-run",
     "test": "jest"
   },
   "files": [
-    "dist",
+    "dist/index.js",
+    "dist/index.cjs",
+    "dist/index.d.ts",
+    "dist/index.d.cts",
     "locales",
     "README.md",
     "LICENSE"
@@ -29,6 +32,17 @@
         "default": "./dist/index.cjs"
       }
     }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+     "^(\\.{1,2}/.*)\\.js$": "$1.js"
+    },
+    "testMatch": [
+      "**/__tests__/**/*.js",
+      "**/*.test.js",
+      "**/*.spec.js"
+    ]
   },
   "repository": {
     "type": "git",
@@ -49,6 +63,8 @@
   "author": "Mike Searcy",
   "license": "MIT",
   "devDependencies": {
+    "@babel/preset-env": "^7.29.2",
+    "babel-jest": "^30.3.0",
     "jest": "^30.3.0",
     "tsup": "^8.5.1",
     "typescript": "^6.0.2"

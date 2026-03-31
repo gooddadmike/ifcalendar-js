@@ -11,12 +11,12 @@ describe('isLeap', () => {
 
 // ─── EN locale ────────────────────────────────────────────────────────────────
 describe('EN locale', () => {
-  test('has 13 months short',  () => expect(EN.monthsShort).toHaveLength(13));
-  test('has 13 months long',   () => expect(EN.monthsLong).toHaveLength(13));
+  test('has 13 months short',  () => expect(EN.ifcMonthsShort).toHaveLength(13));
+  test('has 13 months long',   () => expect(EN.ifcMonths).toHaveLength(13));
   test('has 7 weekdays short', () => expect(EN.weekdaysShort).toHaveLength(7));
-  test('has 7 weekdays long',  () => expect(EN.weekdaysLong).toHaveLength(7));
-  test('Sol is index 6 short', () => expect(EN.monthsShort[6]).toBe('Sol'));
-  test('Sol is index 6 long',  () => expect(EN.monthsLong[6]).toBe('Sol'));
+  test('has 7 weekdays long',  () => expect(EN.weekdays).toHaveLength(7));
+  test('Sol is index 6 short', () => expect(EN.ifcMonthsShort[6]).toBe('Sol'));
+  test('Sol is index 6 long',  () => expect(EN.ifcMonths[6]).toBe('Sol'));
   test('leapDay short is LPD', () => expect(EN.leapDay.short).toBe('LPD'));
   test('leapDay long',         () => expect(EN.leapDay.long).toBe('Leap Day'));
   test('yearDay short is YRD', () => expect(EN.yearDay.short).toBe('YRD'));
@@ -53,17 +53,17 @@ describe('toIFC — default IFC string', () => {
 describe('toIFC — short format', () => {
   test('normal date',   () => expect(toIFC('2026-03-22', 'short')).toBe('Wed Mar 25'));
   test('Sol 1',         () => expect(toIFC('2026-06-18', 'short')).toBe('Sun Sol 1'));
-  test('Leap Day',      () => expect(toIFC('2024-06-17', 'short')).toBe('Jun 29 LPD'));
-  test('Year Day',      () => expect(toIFC('2026-12-31', 'short')).toBe('Dec 29 YRD'));
+  test('Leap Day',      () => expect(toIFC('2024-06-17', 'short')).toBe('LPD Jun 29'));
+  test('Year Day',      () => expect(toIFC('2026-12-31', 'short')).toBe('YRD Dec 29'));
   test('Jan 1 Sunday',  () => expect(toIFC('2026-01-01', 'short')).toBe('Sun Jan 1'));
 });
 
 // ─── toIFC — long format ──────────────────────────────────────────────────────
 describe('toIFC — long format', () => {
-  test('normal date', () => expect(toIFC('2026-03-22', 'long')).toBe('Wednesday March 25'));
-  test('Sol 1',       () => expect(toIFC('2026-06-18', 'long')).toBe('Sunday Sol 1'));
-  test('Leap Day',    () => expect(toIFC('2024-06-17', 'long')).toBe('June 29 Leap Day'));
-  test('Year Day',    () => expect(toIFC('2026-12-31', 'long')).toBe('December 29 Year Day'));
+  test('normal date', () => expect(toIFC('2026-03-22', 'long')).toBe('Wednesday March 25, 2026'));
+  test('Sol 1',       () => expect(toIFC('2026-06-18', 'long')).toBe('Sunday Sol 1, 2026'));
+  test('Leap Day',    () => expect(toIFC('2024-06-17', 'long')).toBe('Leap Day June 29, 2024'));
+  test('Year Day',    () => expect(toIFC('2026-12-31', 'long')).toBe('Year Day December 29, 2026'));
 });
 
 // ─── toIFC — object format ────────────────────────────────────────────────────
@@ -149,11 +149,11 @@ describe('toGregorian — IFC object', () => {
 // ─── toGregorian — formatted output ──────────────────────────────────────────
 describe('toGregorian — formatted output', () => {
   test('short format', () => {
-    expect(toGregorian('IFC:2026-03-22', 'short')).toBe('Thu Mar 19');
+    expect(toGregorian('IFC:2026-03-22', 'short')).toBe('Thu Mar 19 2026');
   });
 
   test('long format', () => {
-    expect(toGregorian('IFC:2026-03-22', 'long')).toBe('Thursday March 19');
+    expect(toGregorian('IFC:2026-03-22', 'long')).toBe('Thursday March 19, 2026');
   });
 });
 
