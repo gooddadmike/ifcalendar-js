@@ -13,28 +13,10 @@
 </head>
 <body>
 
-  <nav class="nav nav-bottom">
-    <a href="desk-clock.html"><i data-lucide="clock"></i></a>
-    <a href="index.html"><i data-lucide="home"></i></a>
-    <a href="calendars.html" class="active"><i data-lucide="calendar-days"></i></a>
-  </nav>
-
   <div class="calendars-page">
     <div class="conversion-display" id="conversion">Click any date</div>
 
     <div class="calendars" id="calendars">
-
-      <div class="cal">
-        <h2>Gregorian</h2>
-        <div class="cal-nav">
-          <button id="gPrev">‹</button>
-          <select id="gMonth"></select>
-          <input type="number" id="gYear" min="1900" max="2100">
-          <button id="gNext">›</button>
-        </div>
-        <div class="weekdays" id="gWeekdays"></div>
-        <div class="days" id="gDays"></div>
-      </div>
 
       <div class="cal">
         <h2>International Fixed</h2>
@@ -48,45 +30,92 @@
         <div class="days" id="iDays"></div>
       </div>
 
+      <div class="cal">
+        <h2>Gregorian</h2>
+        <div class="cal-nav">
+          <button id="gPrev">‹</button>
+          <select id="gMonth"></select>
+          <input type="number" id="gYear" min="1900" max="2100">
+          <button id="gNext">›</button>
+        </div>
+        <div class="weekdays" id="gWeekdays"></div>
+        <div class="days" id="gDays"></div>
+      </div>
+
     </div>
   </div>
 
+  <nav class="nav nav-bottom">
+    <a href="desk-clock.html"><i data-lucide="clock"></i></a>
+    <a href="index.html"><i data-lucide="home"></i></a>
+    <a href="calendars.html" class="active"><i data-lucide="calendar-days"></i></a>
+  </nav>
+
   <script type="module">
-    import { toIFC, toGregorian, isLeap }
-      from 'https://cdn.jsdelivr.net/npm/ifcalendar-js/src/index.esm.js';
+    /*
+      IFC Library Import (Primary focus of this project)
+      Primary:   jsDelivr CDN
+      Fallback:  ../dist/index.js (same-origin, works offline/standalone)
+    */
 
-    const GREG_MONTHS = ['January','February','March','April','May','June',
-                         'July','August','September','October','November','December'];
-    const IFC_MONTHS  = ['January','February','March','April','May','June',
-                         'Sol','July','August','September','October','November','December'];
-    const IFC_SHORT   = ['Jan','Feb','Mar','Apr','May','Jun','Sol',
-                         'Jul','Aug','Sep','Oct','Nov','Dec'];
-    const GREG_SHORT  = ['Jan','Feb','Mar','Apr','May','Jun',
-                         'Jul','Aug','Sep','Oct','Nov','Dec'];
-    const WEEKDAYS    = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    let toIFC, toGregorian, isLeap;
+    let currentLocale = null;     // Will hold the active locale (default = EN)
 
-    const pad = n => String(n).padStart(2, '0');
+    // Load library - CDN first, local fallback if needed
+    async function loadLibrary() {
+      try {
+        const module = await import("https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js");
+        toIFC = module.toIFC;
+        toGregorian = module.toGregorian;
+        isLeap = module.isLeap;
+        currentLocale = module.EN;        // Default to English
+        console.log("✅ ifcalendar-js loaded from jsDelivr CDN");
+        init();
+        return;
+      } catch (err) {
+        console.warn("CDN failed, falling back to local ../dist/index.js");
+      }
 
-    // ── Kiosk mode ───────────────────────────────────────────────────────────
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('kiosk') === 'true') {
-      document.querySelector('.nav').style.display = 'none';
-      document.querySelector('.calendars-page').style.setProperty('padding-bottom', '0.5rem');
+      try {
+        const module = await import("../dist/index.js");
+        toIFC = module.toIFC;
+        toGregorian = module.toGregorian;
+        isLeap = module.isLeap;
+        currentLocale = module.EN;
+        console.log("✅ ifcalendar-js loaded from local ../dist/index.js");
+        init();
+      } catch (fallbackErr) {
+        console.error("❌ Failed to load ifcalendar-js from both sources", fallbackErr);
+        document.getElementById('conversion').textContent = "Library failed to load";
+      }
     }
 
+    let selISO = null;
+    let iView = {};   // IFC view (primary)
+    let gView = {};   // Gregorian view (secondary)
+
     // ── Today ────────────────────────────────────────────────────────────────
-    const now      = new Date();
-    const todayISO = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+    function getTodayISO() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    }
 
-    // ── State ────────────────────────────────────────────────────────────────
-    let selISO = todayISO;
-    let gView  = { year: now.getFullYear(), month: now.getMonth() };
-    let iView  = { year: now.getFullYear(), month: toIFC(todayISO).month };
+    // ── Init after library loads ─────────────────────────────────────────────
+    function init() {
+      const todayISO = getTodayISO();
+      selISO = todayISO;
+      iView = { year: new Date().getFullYear(), month: toIFC(todayISO).month };
+      gView = { year: new Date().getFullYear(), month: new Date().getMonth() };
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+      buildDropdowns();
+      buildWeekdays();
+      render();
+    }
+
+    // ── Helpers using currentLocale ──────────────────────────────────────────
     function ifcMonthDays(m, year) {
-      if (m === 6  && isLeap(year)) return 29;
-      if (m === 13)                 return 29;
+      if (m === 6 && isLeap(year)) return 29;
+      if (m === 13) return 29;
       return 28;
     }
 
@@ -95,79 +124,43 @@
       gridEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
     }
 
-    // ── Format conversion display ─────────────────────────────────────────────
+    // ── Format conversion display ────────────────────────────────────────────
     function formatConversion(iso) {
-      const ifc  = toIFC(iso);
-      const d    = iso.split('-');
-      const gStr = `${GREG_SHORT[parseInt(d[1])-1]} ${parseInt(d[2])}, ${d[0]}`;
-      let ifcStr;
-      if      (ifc.isLeapDay)  ifcStr = `Jun 29 — Leap Day ${d[0]}`;
-      else if (ifc.isYearDay)  ifcStr = `Dec 29 — Year Day ${d[0]}`;
-      else {
-        const wd = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][ifc.weekday];
-        ifcStr   = `${IFC_SHORT[ifc.month-1]} ${ifc.day} (${wd}), ${d[0]}`;
-      }
-      return `${gStr}  ↔  ${ifcStr}`;
-    }
-
-    // ── Select a date ─────────────────────────────────────────────────────────
-    function selectDate(iso) {
-      selISO    = iso;
       const ifc = toIFC(iso);
-      const d   = iso.split('-');
-      gView     = { year: parseInt(d[0]), month: parseInt(d[1]) - 1 };
-      iView     = { year: parseInt(d[0]), month: ifc.month };
-      render();
+      const d = iso.split('-');
+      const gMonthShort = currentLocale.gregMonthsShort[parseInt(d[1])-1];
+
+      let ifcStr;
+      if (ifc.isLeapDay)  ifcStr = `Jun 29 — Leap Day ${d[0]}`;
+      else if (ifc.isYearDay) ifcStr = `Dec 29 — Year Day ${d[0]}`;
+      else {
+        const wd = currentLocale.weekdaysShort[ifc.weekday];
+        ifcStr = `${currentLocale.ifcMonthsShort[ifc.month-1]} ${ifc.day} (${wd}), ${d[0]}`;
+      }
+      return `${gMonthShort} ${parseInt(d[2])}, ${d[0]}  ↔  ${ifcStr}`;
     }
 
-    // ── Build Gregorian grid ──────────────────────────────────────────────────
-    function buildGregGrid() {
-      const { year, month } = gView;
-      const grid     = document.getElementById('gDays');
-      grid.innerHTML = '';
-      const firstDay = new Date(year, month, 1).getDay();
-      const lastDay  = new Date(year, month + 1, 0).getDate();
-
-      for (let i = 0; i < firstDay; i++) {
-        const el = document.createElement('div');
-        el.className = 'day empty';
-        grid.appendChild(el);
-      }
-      for (let d = 1; d <= lastDay; d++) {
-        const iso = `${year}-${pad(month+1)}-${pad(d)}`;
-        const el  = document.createElement('div');
-        el.className   = 'day';
-        el.textContent = d;
-        if (iso === selISO)   el.classList.add('selected');
-        if (iso === todayISO) el.classList.add('today');
-        el.addEventListener('click', () => selectDate(iso));
-        grid.appendChild(el);
-      }
-
-      setGridRows(grid, firstDay + lastDay);
-    }
-
-    // ── Build IFC grid ────────────────────────────────────────────────────────
+    // ── Build IFC grid (primary) ─────────────────────────────────────────────
     function buildIfcGrid() {
       const { year, month } = iView;
-      const grid     = document.getElementById('iDays');
+      const grid = document.getElementById('iDays');
       grid.innerHTML = '';
-      const maxDay   = ifcMonthDays(month, year);
+      const maxDay = ifcMonthDays(month, year);
 
       for (let d = 1; d <= maxDay; d++) {
-        const el  = document.createElement('div');
-        const iso = toGregorian(`IFC:${year}-${pad(month)}-${pad(d)}`);
+        const el = document.createElement('div');
+        const iso = toGregorian(`IFC:${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
 
         if (d === 29) {
-          el.className   = 'day special';
+          el.className = 'day special';
           el.textContent = month === 6 ? '✦ Leap Day' : '✦ Year Day';
         } else {
-          el.className   = 'day';
+          el.className = 'day';
           el.textContent = d;
         }
 
-        if (iso === selISO)   el.classList.add('selected');
-        if (iso === todayISO) el.classList.add('today');
+        if (iso === selISO) el.classList.add('selected');
+        if (iso === getTodayISO()) el.classList.add('today');
         el.addEventListener('click', () => selectDate(iso));
         grid.appendChild(el);
       }
@@ -175,90 +168,137 @@
       setGridRows(grid, maxDay);
     }
 
-    // ── Build static rows ─────────────────────────────────────────────────────
+    // ── Build Gregorian grid ─────────────────────────────────────────────────
+    function buildGregGrid() {
+      const { year, month } = gView;
+      const grid = document.getElementById('gDays');
+      grid.innerHTML = '';
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDay = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const el = document.createElement('div');
+        el.className = 'day empty';
+        grid.appendChild(el);
+      }
+
+      for (let d = 1; d <= lastDay; d++) {
+        const iso = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const el = document.createElement('div');
+        el.className = 'day';
+        el.textContent = d;
+        if (iso === selISO) el.classList.add('selected');
+        if (iso === getTodayISO()) el.classList.add('today');
+        el.addEventListener('click', () => selectDate(iso));
+        grid.appendChild(el);
+      }
+
+      setGridRows(grid, firstDay + lastDay);
+    }
+
+    // ── Build static elements using locale ───────────────────────────────────
     function buildWeekdays() {
-      ['gWeekdays','iWeekdays'].forEach(id => {
-        document.getElementById(id).innerHTML =
-          WEEKDAYS.map(w => `<span>${w}</span>`).join('');
-      });
+      const wdHTML = currentLocale.weekdaysShort.map(w => `<span>${w}</span>`).join('');
+      document.getElementById('gWeekdays').innerHTML = wdHTML;
+      document.getElementById('iWeekdays').innerHTML = wdHTML;
     }
 
     function buildDropdowns() {
       const gSel = document.getElementById('gMonth');
       const iSel = document.getElementById('iMonth');
-      GREG_MONTHS.forEach((m, i) => {
+
+      currentLocale.gregMonths.forEach((m, i) => {
         gSel.innerHTML += `<option value="${i}">${m}</option>`;
       });
-      IFC_MONTHS.forEach((m, i) => {
+
+      currentLocale.ifcMonths.forEach((m, i) => {
         iSel.innerHTML += `<option value="${i+1}">${m}</option>`;
       });
     }
 
-    // ── Sync controls ─────────────────────────────────────────────────────────
+    // ── Sync controls ────────────────────────────────────────────────────────
     function syncControls() {
       document.getElementById('gMonth').value = gView.month;
-      document.getElementById('gYear').value  = gView.year;
+      document.getElementById('gYear').value = gView.year;
       document.getElementById('iMonth').value = iView.month;
-      document.getElementById('iYear').value  = iView.year;
+      document.getElementById('iYear').value = iView.year;
     }
 
-    // ── Render ────────────────────────────────────────────────────────────────
+    // ── Render ───────────────────────────────────────────────────────────────
     function render() {
       syncControls();
-      buildGregGrid();
-      buildIfcGrid();
-      document.getElementById('conversion').textContent =
-        formatConversion(selISO);
+      buildIfcGrid();   // IFC first
+      buildGregGrid();  // Gregorian second
+      document.getElementById('conversion').textContent = formatConversion(selISO);
     }
 
-    // ── Nav handlers ──────────────────────────────────────────────────────────
-    document.getElementById('gPrev').addEventListener('click', () => {
-      if (gView.month === 0) { gView.month = 11; gView.year--; }
-      else gView.month--;
+    // ── Select date ──────────────────────────────────────────────────────────
+    function selectDate(iso) {
+      selISO = iso;
+      const ifc = toIFC(iso);
+      const d = iso.split('-');
+      iView = { year: parseInt(d[0]), month: ifc.month };
+      gView = { year: parseInt(d[0]), month: parseInt(d[1]) - 1 };
       render();
-    });
-    document.getElementById('gNext').addEventListener('click', () => {
-      if (gView.month === 11) { gView.month = 0; gView.year++; }
-      else gView.month++;
-      render();
-    });
+    }
+
+    // ── Nav handlers ─────────────────────────────────────────────────────────
     document.getElementById('iPrev').addEventListener('click', () => {
       if (iView.month === 1) { iView.month = 13; iView.year--; }
       else iView.month--;
       render();
     });
+
     document.getElementById('iNext').addEventListener('click', () => {
       if (iView.month === 13) { iView.month = 1; iView.year++; }
       else iView.month++;
       render();
     });
-    document.getElementById('gMonth').addEventListener('change', e => {
-      gView.month = parseInt(e.target.value); render();
+
+    document.getElementById('gPrev').addEventListener('click', () => {
+      if (gView.month === 0) { gView.month = 11; gView.year--; }
+      else gView.month--;
+      render();
     });
-    document.getElementById('gYear').addEventListener('change', e => {
-      gView.year = parseInt(e.target.value); render();
+
+    document.getElementById('gNext').addEventListener('click', () => {
+      if (gView.month === 11) { gView.month = 0; gView.year++; }
+      else gView.month++;
+      render();
     });
+
     document.getElementById('iMonth').addEventListener('change', e => {
-      iView.month = parseInt(e.target.value); render();
+      iView.month = parseInt(e.target.value);
+      render();
     });
+
     document.getElementById('iYear').addEventListener('change', e => {
-      iView.year = parseInt(e.target.value); render();
+      iView.year = parseInt(e.target.value);
+      render();
     });
 
-    // ── Orientation detection ─────────────────────────────────────────────────
-    const cals = document.getElementById('calendars');
-    const ro   = new ResizeObserver(entries => {
-      const { width, height } = entries[0].contentRect;
-      const portrait = height > width;
-      cals.classList.toggle('layout-portrait',  portrait);
-      cals.classList.toggle('layout-landscape', !portrait);
+    document.getElementById('gMonth').addEventListener('change', e => {
+      gView.month = parseInt(e.target.value);
+      render();
     });
-    ro.observe(document.body);
 
-    // ── Init ──────────────────────────────────────────────────────────────────
-    buildDropdowns();
-    buildWeekdays();
-    render();
+    document.getElementById('gYear').addEventListener('change', e => {
+      gView.year = parseInt(e.target.value);
+      render();
+    });
+
+    // ── Kiosk / Standalone mode ──────────────────────────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('kiosk') === 'true' || 
+        window.navigator.standalone === true || 
+        window.matchMedia('(display-mode: standalone)').matches) {
+      document.querySelector('.nav').style.display = 'none';
+      document.querySelector('.calendars-page').style.setProperty('padding-bottom', '0.5rem');
+    }
+
+    // Start everything
+    loadLibrary();
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
