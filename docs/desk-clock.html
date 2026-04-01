@@ -12,61 +12,67 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <nav class="nav nav-bottom">
-    <a href="desk-clock.html" class="active"><i data-lucide="clock"></i></a>
-    <a href="index.html"><i data-lucide="home"></i></a>
-    <a href="calendars.html"><i data-lucide="calendar-days"></i></a>
-  </nav>
-
   <div class="clock-page">
     <div class="clock-layout" id="clock-layout">
-      <div class="clock-date">
-        <div class="date-line">
-          <span class="label">Gregorian</span>
-          <a class="value" id="greg-date" href="calendars.html">Loading…</a>
-        </div>
-      </div>
-      <div class="clock-face">
-        <h1 class="clock" id="clock">00:00</h1>
-      </div>
+      <!-- IFC on the LEFT -->
       <div class="clock-date">
         <div class="date-line">
           <span class="label">IFC</span>
           <a class="value" id="ifc-date" href="calendars.html">Loading…</a>
         </div>
       </div>
+
+      <div class="clock-face">
+        <h1 class="clock" id="clock">00:00</h1>
+      </div>
+
+      <!-- Gregorian on the RIGHT -->
+      <div class="clock-date">
+        <div class="date-line">
+          <span class="label">Gregorian</span>
+          <a class="value" id="greg-date" href="calendars.html">Loading…</a>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Navigation at the bottom of HTML -->
+  <nav class="nav nav-bottom">
+    <a href="desk-clock.html" class="active"><i data-lucide="clock"></i></a>
+    <a href="index.html"><i data-lucide="home"></i></a>
+    <a href="calendars.html"><i data-lucide="calendar-days"></i></a>
+  </nav>
+
   <script type="module">
     /*
-      IFC Library Import (jsDelivr CDN)
-      Latest:    https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js
-      Versioned: https://cdn.jsdelivr.net/npm/ifcalendar-js@1.0.2/dist/index.js
-      Fallback:  https://raw.githubusercontent.com/gooddadmike/ifcalendar-js/main/dist/index.js
+      IFC Library Import (Primary focus of this project)
+      Primary:   jsDelivr CDN (dogfooding)
+      Fallback:  ../dist/index.js (same-origin, works offline/standalone)
     */
 
     let toIFC = null;
     let use24 = false;
 
-    // Load IFC library with fallback
+    // Load IFC library - CDN first, local fallback if needed
     async function loadLibrary() {
       try {
         const module = await import("https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js");
         toIFC = module.toIFC;
-        console.log("✅ ifcalendar-js loaded from jsDelivr");
-        updateDates();                    // Update IFC once loaded
+        console.log("✅ ifcalendar-js loaded from jsDelivr CDN");
+        updateDates();
+        return;
       } catch (err) {
-        console.warn("jsDelivr failed, trying GitHub raw fallback...");
-        try {
-          const module = await import("https://raw.githubusercontent.com/gooddadmike/ifcalendar-js/main/dist/index.js");
-          toIFC = module.toIFC;
-          console.log("✅ ifcalendar-js loaded from GitHub raw");
-          updateDates();
-        } catch (fallbackErr) {
-          console.error("❌ Failed to load ifcalendar-js from both sources", fallbackErr);
-          document.getElementById('ifc-date').textContent = "Library failed to load";
-        }
+        console.warn("CDN failed, falling back to local ../dist/index.js");
+      }
+
+      try {
+        const module = await import("../dist/index.js");
+        toIFC = module.toIFC;
+        console.log("✅ ifcalendar-js loaded from local ../dist/index.js");
+        updateDates();
+      } catch (fallbackErr) {
+        console.error("❌ Failed to load ifcalendar-js from both sources", fallbackErr);
+        document.getElementById('ifc-date').textContent = "IFC unavailable";
       }
     }
 
@@ -74,13 +80,13 @@
     function updateDates() {
       const now = new Date();
 
-      // Gregorian short format
+      // Gregorian (right side)
       const gwd = now.toLocaleDateString('en-US', { weekday: 'short' });
       const gmo = now.toLocaleDateString('en-US', { month: 'short' });
       document.getElementById('greg-date').textContent = 
         `${gwd} ${gmo} ${now.getDate()}`;
 
-      // IFC short format
+      // IFC (left side) - short format
       if (toIFC) {
         document.getElementById('ifc-date').textContent = toIFC(now, 'short');
       }
@@ -117,8 +123,8 @@
 
     // ── Initialization ───────────────────────────────────────────────────
     setInterval(update, 60000);
-    update();           // Initial clock + gregorian update
-    loadLibrary();      // Async load IFC library
+    update();           // initial clock + dates
+    loadLibrary();      // async load IFC library
 
     // ── Orientation Detection ────────────────────────────────────────────
     const layout = document.getElementById('clock-layout');
@@ -130,10 +136,10 @@
     });
     ro.observe(document.body);
 
-    // ── Standalone / Kiosk Mode Detection ────────────────────────────────
+    // ── Standalone / Kiosk Mode ──────────────────────────────────────────
     const nav = document.querySelector('.nav');
     const isStandalone = 
-      window.navigator.standalone === true || 
+      window.navigator.standalone === true ||
       window.matchMedia('(display-mode: standalone)').matches ||
       new URLSearchParams(window.location.search).get('kiosk') === 'true';
 
