@@ -7,9 +7,9 @@ Gregorian calendar and the International Fixed Calendar (IFC).
 
 ## What is the International Fixed Calendar? 🗓️
 
-Imagine knowing the day of the week for any date without checking. The first
-of every month is always a Sunday. The last is always a Saturday. Every month
-is exactly 4 weeks. No uneven lengths. No drifting holidays.
+Imagine if every month started on the same day of the week. Imagine knowing
+the weekday of any date instantly, without checking. No uneven month lengths,
+no holidays that drift around the calendar year after year.
 
 &nbsp;&nbsp;&nbsp;&nbsp;**... June → ☀️ Sol → July ...**
 
@@ -17,7 +17,13 @@ And there is an extra month of summer right in the middle.
 
 The Gregorian calendar has months of different lengths so every month starts
 on a different weekday and a month is "about 30 days". The IFC fixes this
-with 13 months of exactly 28 days each.
+with 13 months of exactly 28 days each. Every month starts on Sunday. Every
+month ends on Saturday.
+
+The IFC is also known as the **Cotsworth Calendar** and the **Eastman Calendar**
+— named after Moses Cotsworth who proposed it in 1902 and George Eastman of
+Kodak who famously adopted it for his company's internal calendar from 1928
+to 1989.
 
 ### Bonus Days 🎁
 
@@ -41,7 +47,9 @@ Both demos are built entirely on this package via CDN. View source to see
 the reference implementation.
 
 ### 🕐 IFC Desk Clock
+
 [Open Desk Clock →](https://gooddadmike.github.io/ifcalendar-js/desk-clock.html)
+[View Source →](https://github.com/gooddadmike/ifcalendar-js/blob/main/docs/desk-clock.html)
 
 Keep it open on a spare monitor or tablet. Glancing at both dates together
 is how the IFC date starts to feel real rather than abstract. The same way
@@ -49,7 +57,9 @@ setting a watch to military time gradually builds the mental mapping until
 it becomes second nature.
 
 ### 📅 IFC Calendars
+
 [Open Calendars →](https://gooddadmike.github.io/ifcalendar-js/calendars.html)
+[View Source →](https://github.com/gooddadmike/ifcalendar-js/blob/main/docs/calendars.html)
 
 An interactive dual calendar. Find any date on either side and the equivalent
 date in the other calendar is shown instantly. Browse by month and year
@@ -59,28 +69,28 @@ independently on each side.
 
 Add `?kiosk=true` to either URL to hide the navigation bar for a cleaner
 display experience:
-
 ```
 https://gooddadmike.github.io/ifcalendar-js/desk-clock.html?kiosk=true
 https://gooddadmike.github.io/ifcalendar-js/calendars.html?kiosk=true
 ```
 
-On iOS, tap the share button in Safari and choose **Add to Home Screen** to
-pin it as a full-screen app icon. Combined with kiosk mode it makes a clean
-desk clock or calendar reference with no browser chrome.
+Pin it as a full-screen app with no browser chrome:
+
+- **iOS / iPadOS** — Safari share button → Add to Home Screen
+- **Android** — Chrome three-dot menu → Add to Home Screen
+- **macOS** — Safari → File → Add to Dock (Sonoma and later)
+- **Windows** — Edge → Apps → Install this site as an app
 
 ---
 
 ## How the Math Works 🧮
 
-To get the day of year for any Gregorian date, add up the days in each month
-before it then add the day of the month. March 22nd for example: January has
-31 days, February has 28 days in a normal year, so 31 + 28 + 22 = day 81.
-
-Now divide by 28. Each IFC month is exactly 28 days so this tells you which
-month you are in. Day 81 divided by 28 is 2 remainder 25 — IFC month 3
-(March), day 25. That is how March 22nd Gregorian becomes IFC March 25th.
-A 1 day adjustment has to be made after Leap Day.
+Every date in a year has a position from 1 to 365 called the day of year.
+To find it, add the days in each month before the target date then add the
+day itself — March 22nd is 31 + 28 + 22 = day 81. Divide by 28 and the
+quotient gives the IFC month, the remainder gives the day — 81 divided by
+28 is month 3 day 25, so March 22nd Gregorian is IFC March 25th. A 1 day
+adjustment is made for any date after Leap Day in a leap year.
 
 ---
 
@@ -119,58 +129,81 @@ IFC:2024-06-29
 
 ## API 📖
 
-### `toIFC(date?)`
+### `toIFC(input?, format?, locale?)`
 
-Turn any Gregorian date into an IFC date object. Pass an ISO string or
+Converts a Gregorian date to an IFC date. The return type depends on
+the input type and the format you request.
+
+Input accepts a Gregorian ISO string, a JavaScript `Date` object, or
 nothing at all — no argument means today.
 ```js
-const { toIFC } = require('@gooddadmike/ifcalendar-js');
+const { toIFC } = require('ifcalendar-js');
 
-toIFC('2026-03-22');
+// Default — returns an IFC string
+toIFC('2026-03-22')            // 'IFC:2026-03-25'
+toIFC('2024-06-17')            // 'IFC:2024-06-29'  (Leap Day)
+toIFC('2026-12-31')            // 'IFC:2026-13-29'  (Year Day)
+toIFC()                        // today e.g. 'IFC:2026-03-27'
+
+// JavaScript Date object
+toIFC(new Date(2026, 2, 22))   // 'IFC:2026-03-25'
+
+// Short human string — weekday month day
+toIFC('2026-03-22', 'short')   // 'Wed Mar 25'
+toIFC('2026-06-18', 'short')   // 'Sun Sol 1'
+toIFC('2024-06-17', 'short')   // 'LPD Jun 29'
+toIFC('2026-12-31', 'short')   // 'YRD Dec 29'
+
+// Long human string — weekday month day, year
+toIFC('2026-03-22', 'long')    // 'Wednesday March 25, 2026'
+toIFC('2026-06-18', 'long')    // 'Sunday Sol 1, 2026'
+toIFC('2024-06-17', 'long')    // 'Leap Day June 29, 2024'
+toIFC('2026-12-31', 'long')    // 'Year Day December 29, 2026'
+
+// Structured object
+toIFC('2026-03-22', 'object')
 // {
 //   year: 2026,
-//   month: 3,      // 1-based: 1=January, 7=Sol, 13=December
+//   month: 3,        // 1-based: 1=January, 7=Sol, 13=December
 //   day: 25,
-//   weekday: 4,    // 0=Sun, 1=Mon ... 6=Sat, null for intercalary days
+//   weekday: 3,      // 0=Sun ... 6=Sat, null for intercalary days
 //   isLeapDay: false,
 //   isYearDay: false
 // }
-
-toIFC('2024-06-17');
-// { year: 2024, month: 6, day: 29, weekday: null, isLeapDay: true,  isYearDay: false }
-
-toIFC('2026-12-31');
-// { year: 2026, month: 13, day: 29, weekday: null, isLeapDay: false, isYearDay: true  }
-
-// No argument uses today
-toIFC();
 ```
 
 ---
 
-### `toGregorian(input)`
+### `toGregorian(input, format?, locale?)`
 
-Turn an IFC date back into a Gregorian ISO string. Pass a string, the
-result of `toIFC()`, or build the object yourself.
+Converts an IFC date back to a Gregorian date. Accepts an IFC string,
+the object returned by `toIFC()`, or a hand-built object.
 ```js
 const { toGregorian } = require('ifcalendar-js');
 
-// From an IFC date string
-toGregorian('IFC:2024-06-29');  // '2024-06-17'  (Leap Day)
-toGregorian('IFC:2026-07-01');  // '2026-06-18'  (Sol 1)
-toGregorian('IFC:2026-13-29');  // '2026-12-31'  (Year Day)
+// Default — returns a Gregorian ISO string
+toGregorian('IFC:2024-06-29')                  // '2024-06-17'  (Leap Day)
+toGregorian('IFC:2026-07-01')                  // '2026-06-18'  (Sol 1)
+toGregorian('IFC:2026-13-29')                  // '2026-12-31'  (Year Day)
 
-// Pass the result of toIFC() directly
-const ifc = toIFC('2024-06-17');
-toGregorian(ifc);               // '2024-06-17'
+// From toIFC() result — round trip
+const ifc = toIFC('2024-06-17', 'object');
+toGregorian(ifc)                               // '2024-06-17'
 
-// Or build an IFC date object by hand
-toGregorian({ year: 2026, month: 7, day: 1 });  // '2026-06-18'  (Sol 1)
+// Hand-built object
+toGregorian({ year: 2026, month: 7, day: 1 }) // '2026-06-18'
+
+// Short human string — weekday month day year
+toGregorian('IFC:2026-07-01', 'short')         // 'Thu Jun 18 2026'
+toGregorian('IFC:2024-06-29', 'short')         // 'Mon Jun 17 2024'
+
+// Long human string — weekday month day, year
+toGregorian('IFC:2026-07-01', 'long')          // 'Thursday June 18, 2026'
+toGregorian('IFC:2024-06-29', 'long')          // 'Monday June 17, 2024'
 ```
 
-The `IFC:` prefix is required when passing a string. Without it the parser
-assumes Gregorian. The same numeric string means different things in each
-calendar:
+The `IFC:` prefix is required when passing a string. The same numeric
+string means different things in each calendar:
 ```
 2024-07-15       -> Gregorian July 15
 IFC:2024-07-15   -> IFC Sol 15 (Gregorian July 2nd)
@@ -204,39 +237,60 @@ isLeap(2000);  // true   (divisible by 400)
 
 Drop the `require` and use `import` instead.
 ```js
-import { toIFC, toGregorian, isLeap } from 'ifcalendar-js';
+import { toIFC, toGregorian, isLeap, EN } from 'ifcalendar-js';
 ```
 
 ---
 
-### Formatting and Locale
+### Locale Support 🌍
 
-`toIFC()` returns a structured object with numeric values for month,
-day and weekday. Formatting those numbers into display strings is
-intentionally left to the consumer — this keeps the library focused
-on math and gives you full control over language and style:
+The library ships with an English locale (`EN`) used by default for
+`'short'` and `'long'` format output. Pass your own locale object as
+the third argument to use a different language.
 ```js
-const ifc    = toIFC('2026-03-22');
-const months = ['Jan','Feb','Mar','Apr','May','Jun','Sol',
-                'Jul','Aug','Sep','Oct','Nov','Dec'];
-const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const { toIFC, EN } = require('ifcalendar-js');
 
-console.log(`${months[ifc.month - 1]} ${ifc.day} ${days[ifc.weekday]}`);
-// "Mar 25 Wed"
+// The EN locale shape — use it as a template
+// {
+//   ifcMonths:      [...13 full IFC month names...],
+//   ifcMonthsShort: [...13 short IFC month names...],
+//   gregMonths:      [...12 full Gregorian month names...],
+//   gregMonthsShort: [...12 short Gregorian month names...],
+//   weekdays:       ['Sunday', 'Monday', ...],
+//   weekdaysShort:  ['Sun', 'Mon', ...],
+//   leapDay:        { short: 'LPD', long: 'Leap Day' },
+//   yearDay:        { short: 'YRD', long: 'Year Day' }
+// }
+
+// Partial override — spread EN and replace what you need
+const FR = {
+  ...EN,
+  ifcMonthsShort:  ['Jan','Fév','Mar','Avr','Mai','Jun','Sol',
+                    'Jul','Aoû','Sep','Oct','Nov','Déc'],
+  ifcMonths:       ['Janvier','Février','Mars','Avril','Mai','Juin','Sol',
+                    'Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+  monthsShort:     ['Jan','Fév','Mar','Avr','Mai','Jun','Jul',
+                    'Aoû','Sep','Oct','Nov','Déc'],
+  months:          ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet',
+                    'Août','Septembre','Octobre','Novembre','Décembre'],
+  weekdaysShort:   ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
+  weekdays:        ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']
+};
+
+toIFC('2026-03-22', 'short', FR);  // 'Mer Mar 25'
+toIFC('2026-03-22', 'long',  FR);  // 'Mercredi Mars 25, 2026'
 ```
 
-If you need a pre-formatted watch-friendly string with locale support,
-see [pebble-ifc-complication](https://github.com/gooddadmike/pebble-ifc-complication)
-which wraps this library with configurable month names, weekday names,
-and special day labels.
+Locale files live in `src/locales/`. To add a new language open a PR
+adding `src/locales/fr.js` (or your language code) with the same shape
+as `src/locales/en.js`.
 
 ---
 
 ### TypeScript Shape
 
 Not a TypeScript package but here is the shape of an IFC date object
-for reference — useful if you are writing `.d.ts` types or just want
-to understand what `toIFC()` returns.
+for reference:
 ```ts
 type IFCDate = {
   year:      number
@@ -250,7 +304,7 @@ type IFCDate = {
 
 ---
 
-## Timezones 🌍
+## Timezones
 
 `toIFC()` with no argument uses the local system time. To use a specific
 timezone, pass an ISO string calculated in that zone:
@@ -275,18 +329,17 @@ Replace `'UTC'` with any IANA timezone string such as `'America/New_York'`,
 
 ## Go Deeper 🐇
 
-## Going deeper with dates & time 🐇
+**ifcalendar-js** focuses on converting between the IFC and Gregorian
+calendars with clean human-readable formatting built in. For heavier date
+and time needs these are worth knowing about:
 
-**ifcalendar-js** focuses specifically on converting between the **International Fixed Calendar (IFC)** and the standard Gregorian calendar, including nice human-readable formatting.
+- **[date-fns](https://date-fns.org/)** — modern, functional, tree-shakeable Gregorian utilities
+- **[Luxon](https://moment.github.io/luxon/)** — powerful formatting, timezones, and internationalization
+- **[day.js](https://day.js.org/)** — tiny (~2kb) with a familiar Moment-like API
+- **[Temporal](https://tc39.es/proposal-temporal/)** — the new official JavaScript date/time API, part of ECMAScript 2026 and already shipping in modern browsers
 
-Curious about date and time handling in general? These are worth knowing about:
-
-- **[date-fns](https://date-fns.org/)** — Modern, functional, tree-shakeable utilities for the Gregorian calendar
-- **[Luxon](https://moment.github.io/luxon/)** — Powerful formatting, timezones, and internationalization
-- **[day.js](https://day.js.org/)** — Tiny (~2kb) with a familiar Moment-like API
-- **[Temporal](https://tc39.es/proposal-temporal/)** — The new official JavaScript date/time API (part of ECMAScript 2026, already shipping in modern browsers)
-
-If you're building a full-featured date picker or need heavy timezone handling, combine **ifcalendar-js** with one of the above.
+If you need heavy timezone handling or a full-featured date picker, combine
+**ifcalendar-js** with one of the above.
 
 The white rabbit goes as deep as you want. 🐇
 
@@ -295,15 +348,19 @@ The white rabbit goes as deep as you want. 🐇
 ## A Note on How This Was Built 🤖
 
 The ideation, code, and tests for this package were written lovingly alongside
-[Claude.ai](https://claude.ai) and a little [Grok](https://grok.com] when tokens were low. 
-Not simply generated and pasted - actually discussed,
-debugged, argued over, and refined through conversation. The bugs were real,
-the fixes were earned, and the documentation thoughtfully crafted.
+[Claude.ai](https://claude.ai) and a little [Grok](https://grok.com) when
+tokens were low. Not simply generated and pasted — actually discussed,
+debugged, argued over, and refined through conversation. The bugs were real
+and the fixes were earned.
 
 ---
+
 ## Contributing 🤝
 
-See [CONTRIBUTING.md](https://github.com/gooddadmike/ifcalendar-js/blob/main/CONTRIBUTING.md) for guidelines.
+Locale files welcome — add `src/locales/xx.js` matching the shape of
+`src/locales/en.js` and open a PR.
+
+See [CONTRIBUTING.md](https://github.com/gooddadmike/ifcalendar-js/blob/main/CONTRIBUTING.md) for full guidelines.
 
 ---
 
@@ -318,4 +375,3 @@ See [CONTRIBUTING.md](https://github.com/gooddadmike/ifcalendar-js/blob/main/CON
 ## License
 
 MIT
-
