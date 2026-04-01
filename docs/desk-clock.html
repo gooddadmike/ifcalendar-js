@@ -39,15 +39,55 @@
   </div>
 
   <script type="module">
-    // ── Import from jsDelivr CDN ─────────────────────────────────────────────
-    import { toIFC } from "https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js";
+    /*
+      IFC Library Import (jsDelivr CDN)
+      Latest:    https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js
+      Versioned: https://cdn.jsdelivr.net/npm/ifcalendar-js@1.0.2/dist/index.js
+      Fallback:  https://raw.githubusercontent.com/gooddadmike/ifcalendar-js/main/dist/index.js
+    */
 
+    let toIFC;
     let use24 = false;
 
-    function update() {
+    // Load the library with fallback
+    async function loadLibrary() {
+      try {
+        // Primary: Fast CDN
+        const module = await import("https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js");
+        toIFC = module.toIFC;
+        console.log("✅ ifcalendar-js loaded from jsDelivr");
+      } catch (err) {
+        console.warn("jsDelivr CDN failed, trying GitHub raw fallback...");
+        try {
+          const module = await import("https://raw.githubusercontent.com/gooddadmike/ifcalendar-js/main/dist/index.js");
+          toIFC = module.toIFC;
+          console.log("✅ ifcalendar-js loaded from GitHub raw");
+        } catch (fallbackErr) {
+          console.error("❌ Failed to load ifcalendar-js from both sources", fallbackErr);
+          document.getElementById('ifc-date').textContent = "Library failed to load";
+        }
+      }
+    }
+
+    // ── Update Dates ─────────────────────────────────────────────────────
+    function updateDates() {
       const now = new Date();
 
-      // ── Clock Display (12/24 hour toggle) ─────────────────────────────────
+      // Gregorian short format
+      const gwd = now.toLocaleDateString('en-US', { weekday: 'short' });
+      const gmo = now.toLocaleDateString('en-US', { month: 'short' });
+      document.getElementById('greg-date').textContent = 
+        `${gwd} ${gmo} ${now.getDate()}`;
+
+      // IFC short format
+      if (toIFC) {
+        document.getElementById('ifc-date').textContent = toIFC(now, 'short');
+      }
+    }
+
+    // ── Update Clock ─────────────────────────────────────────────────────
+    function updateClock() {
+      const now = new Date();
       let h = now.getHours();
       const m = String(now.getMinutes()).padStart(2, '0');
       const ampm = h >= 12 ? 'PM' : 'AM';
@@ -60,28 +100,26 @@
         document.getElementById('clock').textContent = 
           `${String(h).padStart(2, '0')}:${m}`;
       }
-
-      // ── IFC Date (using new short/long formats) ───────────────────────────
-      document.getElementById('ifc-date').textContent = toIFC(now, 'short');
-
-      // ── Gregorian Date ────────────────────────────────────────────────────
-      const gwd = now.toLocaleDateString('en-US', { weekday: 'short' });
-      const gmo = now.toLocaleDateString('en-US', { month: 'short' });
-      document.getElementById('greg-date').textContent = 
-        `${gwd} ${gmo} ${now.getDate()}`;
     }
 
-    // ── Toggle 12/24 hour format ─────────────────────────────────────────────
+    // ── Main Update ──────────────────────────────────────────────────────
+    function update() {
+      updateClock();
+      updateDates();
+    }
+
+    // 12/24 hour toggle
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
-      update();
+      updateClock();
     });
 
-    // Update every minute
+    // ── Initialization ───────────────────────────────────────────────────
     setInterval(update, 60000);
-    update(); // initial call
+    update();                    // initial call
+    loadLibrary();               // load IFC library asynchronously
 
-    // ── Orientation detection ────────────────────────────────────────────────
+    // ── Orientation Detection ────────────────────────────────────────────
     const layout = document.getElementById('clock-layout');
     const ro = new ResizeObserver(entries => {
       const { width, height } = entries[0].contentRect;
@@ -91,10 +129,15 @@
     });
     ro.observe(document.body);
 
-    // ── Kiosk mode ───────────────────────────────────────────────────────────
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('kiosk') === 'true') {
-      document.querySelector('.nav').style.display = 'none';
+    // ── Standalone / Kiosk Mode Detection ────────────────────────────────
+    const nav = document.querySelector('.nav');
+    const isStandalone = 
+      window.navigator.standalone === true || 
+      window.matchMedia('(display-mode: standalone)').matches ||
+      new URLSearchParams(window.location.search).get('kiosk') === 'true';
+
+    if (isStandalone) {
+      nav.style.display = 'none';
       document.querySelector('.clock-page').style.setProperty('padding-bottom', '0');
     }
   </script>
