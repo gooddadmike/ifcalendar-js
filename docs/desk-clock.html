@@ -46,22 +46,23 @@
       Fallback:  https://raw.githubusercontent.com/gooddadmike/ifcalendar-js/main/dist/index.js
     */
 
-    let toIFC;
+    let toIFC = null;
     let use24 = false;
 
-    // Load the library with fallback
+    // Load IFC library with fallback
     async function loadLibrary() {
       try {
-        // Primary: Fast CDN
         const module = await import("https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js");
         toIFC = module.toIFC;
         console.log("✅ ifcalendar-js loaded from jsDelivr");
+        updateDates();                    // Update IFC once loaded
       } catch (err) {
-        console.warn("jsDelivr CDN failed, trying GitHub raw fallback...");
+        console.warn("jsDelivr failed, trying GitHub raw fallback...");
         try {
           const module = await import("https://raw.githubusercontent.com/gooddadmike/ifcalendar-js/main/dist/index.js");
           toIFC = module.toIFC;
           console.log("✅ ifcalendar-js loaded from GitHub raw");
+          updateDates();
         } catch (fallbackErr) {
           console.error("❌ Failed to load ifcalendar-js from both sources", fallbackErr);
           document.getElementById('ifc-date').textContent = "Library failed to load";
@@ -116,8 +117,8 @@
 
     // ── Initialization ───────────────────────────────────────────────────
     setInterval(update, 60000);
-    update();                    // initial call
-    loadLibrary();               // load IFC library asynchronously
+    update();           // Initial clock + gregorian update
+    loadLibrary();      // Async load IFC library
 
     // ── Orientation Detection ────────────────────────────────────────────
     const layout = document.getElementById('clock-layout');
