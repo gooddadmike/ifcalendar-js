@@ -55,7 +55,7 @@
     /*
       IFC Library Import (Primary focus of this project)
       Primary:   jsDelivr CDN
-      Fallback:  ./index.js (local copy in docs/ for standalone/offline)
+      Fallback:  ./index.js (local copy in docs/ for offline/standalone)
     */
 
     let toIFC, toGregorian, isLeap, currentLocale;
@@ -89,8 +89,8 @@
     }
 
     let selISO = null;
-    let iView = {};
-    let gView = {};
+    let iView = {};   // IFC view (primary)
+    let gView = {};   // Gregorian view (secondary)
 
     function getTodayISO() {
       const now = new Date();
@@ -100,6 +100,7 @@
     function init() {
       const todayISO = getTodayISO();
       selISO = todayISO;
+
       const todayIfc = toIFC(todayISO);
       iView = { year: todayIfc.year, month: todayIfc.month };
       gView = { year: new Date().getFullYear(), month: new Date().getMonth() };
@@ -139,6 +140,7 @@
 
     // Build IFC grid first
     function buildIfcGrid() {
+      if (!toIFC) return;
       const { year, month } = iView;
       const grid = document.getElementById('iDays');
       grid.innerHTML = '';
@@ -157,11 +159,11 @@
         }
 
         if (isoStr === selISO) el.classList.add('selected');
-        if (isoStr === getTodayISO()) el.classList.add('today');   // Note: this won't match exactly
+        if (isoStr === getTodayISO()) el.classList.add('today');
+
         el.addEventListener('click', () => selectDate(isoStr));
         grid.appendChild(el);
       }
-
       setGridRows(grid, maxDay);
     }
 
@@ -189,7 +191,6 @@
         el.addEventListener('click', () => selectDate(iso));
         grid.appendChild(el);
       }
-
       setGridRows(grid, firstDay + lastDay);
     }
 
@@ -220,6 +221,7 @@
     }
 
     function render() {
+      if (!toIFC) return;
       syncControls();
       buildIfcGrid();
       buildGregGrid();
@@ -235,7 +237,7 @@
       render();
     }
 
-    // Nav handlers (IFC first)
+    // Nav handlers
     document.getElementById('iPrev').addEventListener('click', () => {
       if (iView.month === 1) { iView.month = 13; iView.year--; }
       else iView.month--;
@@ -280,7 +282,7 @@
       render();
     });
 
-    // Kiosk / Standalone
+    // Kiosk / Standalone mode
     const params = new URLSearchParams(window.location.search);
     if (params.get('kiosk') === 'true' || 
         window.navigator.standalone === true || 
