@@ -55,34 +55,34 @@
     /*
       IFC Library Import (Primary focus of this project)
       Primary:   jsDelivr CDN
-      Fallback:  ../dist/index.js (same-origin, works offline/standalone)
+      Fallback:  ./index.js (local copy in docs/ folder for standalone/offline)
     */
 
-    let toIFC, toGregorian, isLeap;
-    let currentLocale = null;     // Will hold the active locale (default = EN)
+    let toIFC, toGregorian, isLeap, currentLocale;
 
-    // Load library - CDN first, local fallback if needed
     async function loadLibrary() {
+      // Primary: CDN (dogfooding)
       try {
-        const module = await import("https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js");
-        toIFC = module.toIFC;
-        toGregorian = module.toGregorian;
-        isLeap = module.isLeap;
-        currentLocale = module.EN;        // Default to English
-        console.log("✅ ifcalendar-js loaded from jsDelivr CDN");
-        init();
-        return;
-      } catch (err) {
-        console.warn("CDN failed, falling back to local ../dist/index.js");
-      }
-
-      try {
-        const module = await import("../dist/index.js");
+       const module = await import("https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js");
         toIFC = module.toIFC;
         toGregorian = module.toGregorian;
         isLeap = module.isLeap;
         currentLocale = module.EN;
-        console.log("✅ ifcalendar-js loaded from local ../dist/index.js");
+        console.log("✅ ifcalendar-js loaded from jsDelivr CDN");
+        init();
+        return;
+      } catch (err) {
+        console.warn("CDN failed, falling back to local ./index.js");
+      }
+
+      // Fallback: Local file in docs/ folder
+      try {
+        const module = await import("./index.js");
+        toIFC = module.toIFC;
+        toGregorian = module.toGregorian;
+        isLeap = module.isLeap;
+        currentLocale = module.EN;
+        console.log("✅ ifcalendar-js loaded from local ./index.js");
         init();
       } catch (fallbackErr) {
         console.error("❌ Failed to load ifcalendar-js from both sources", fallbackErr);

@@ -8,7 +8,8 @@
   },
   "scripts": {
     "build": "tsup src/index.js --format cjs,esm --clean --dts --minify --sourcemap --no-sourcemap",
-    "prepublishOnly": "npm run build",
+    "postbuild": "cp dist/index.js docs/index.js",
+    "prepublishOnly": "npm run build"
     "dry-run": "npm publish --dry-run",
     "test": "jest"
   },
