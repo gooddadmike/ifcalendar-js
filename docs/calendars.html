@@ -14,7 +14,11 @@
 <body>
 
   <div class="calendars-page">
-    <div class="conversion-display" id="conversion">Click any date</div>
+    <!-- Live time + conversion display on the same line -->
+    <div class="top-bar">
+      <a href="desk-clock.html" id="time-link" class="current-time">00:00</a>
+      <div class="conversion-display" id="conversion">Click any date</div>
+    </div>
 
     <div class="calendars" id="calendars">
 
@@ -45,22 +49,17 @@
     </div>
   </div>
 
-  <nav class="nav nav-bottom">
-    <a href="desk-clock.html"><i data-lucide="clock"></i></a>
-    <a href="index.html"><i data-lucide="home"></i></a>
-    <a href="calendars.html" class="active"><i data-lucide="calendar-days"></i></a>
-  </nav>
-
   <script type="module">
     /*
       IFC Library Import (Primary focus of this project)
       Primary:   jsDelivr CDN
-      Fallback:  ./index.js (local copy in docs/ for offline/standalone)
+      Fallback:  ./index.js (local copy in docs/)
     */
 
     let toIFC, toGregorian, isLeap, currentLocale;
 
     async function loadLibrary() {
+      // Primary: jsDelivr CDN
       try {
         const module = await import("https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js");
         toIFC = module.toIFC;
@@ -71,9 +70,10 @@
         init();
         return;
       } catch (err) {
-        console.warn("CDN failed, falling back to local ./index.js");
+        console.warn("jsDelivr CDN failed, falling back to local ./index.js");
       }
 
+      // Fallback: Local file only
       try {
         const module = await import("./index.js");
         toIFC = module.toIFC;
@@ -83,7 +83,7 @@
         console.log("✅ ifcalendar-js loaded from local ./index.js");
         init();
       } catch (fallbackErr) {
-        console.error("❌ Failed to load ifcalendar-js from both sources", fallbackErr);
+        console.error("❌ Failed to load ifcalendar-js from both CDN and local file", fallbackErr);
         document.getElementById('conversion').textContent = "Library failed to load";
       }
     }
@@ -108,9 +108,20 @@
       buildDropdowns();
       buildWeekdays();
       render();
+      startLiveClock();
     }
 
-    // ── Helpers ─────────────────────────────────────────────────────────────
+    function startLiveClock() {
+      const timeLink = document.getElementById('time-link');
+      setInterval(() => {
+        const now = new Date();
+        let h = now.getHours();
+        const m = String(now.getMinutes()).padStart(2, '0');
+        timeLink.textContent = `${h}:${m}`;
+      }, 1000);
+    }
+
+    // ── Helpers using locale ─────────────────────────────────────────────────
     function ifcMonthDays(m, year) {
       if (m === 6 && isLeap(year)) return 29;
       if (m === 13) return 29;
@@ -138,7 +149,6 @@
       return `${gMonthShort} ${parseInt(d[2])}, ${d[0]}  ↔  ${ifcStr}`;
     }
 
-    // Build IFC grid first
     function buildIfcGrid() {
       if (!toIFC) return;
       const { year, month } = iView;
@@ -281,15 +291,6 @@
       gView.year = parseInt(e.target.value);
       render();
     });
-
-    // Kiosk / Standalone mode
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('kiosk') === 'true' || 
-        window.navigator.standalone === true || 
-        window.matchMedia('(display-mode: standalone)').matches) {
-      document.querySelector('.nav').style.display = 'none';
-      document.querySelector('.calendars-page').style.setProperty('padding-bottom', '0.5rem');
-    }
 
     // Start
     loadLibrary();

@@ -1,8 +1,6 @@
 <!--
   @gooddadmike/ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Lucide Icons — MIT — https://lucide.dev
   Marked.js — MIT — https://marked.js.org
-  Served via jsDelivr CDN — https://jsdelivr.com
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -13,26 +11,11 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <nav class="nav nav-bottom">
-    <a href="desk-clock.html"><i data-lucide="clock"></i></a>
-    <a href="index.html" class="active"><i data-lucide="home"></i></a>
-    <a href="calendars.html"><i data-lucide="calendar-days"></i></a>
-  </nav>
-
   <div class="info-page">
     <div id="readme">Loading…</div>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    // ── Kiosk mode ───────────────────────────────────────────────────────────
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('kiosk') === 'true') {
-      document.querySelector('.nav').style.display = 'none';
-      document.querySelector('.info-page').style.setProperty('padding-bottom', '1rem');
-    }
-
     // ── Load README ──────────────────────────────────────────────────────────
     fetch('https://raw.githubusercontent.com/gooddadmike/ifcalendar-js/main/README.md')
       .then(r => r.text())
@@ -40,9 +23,5 @@
         document.getElementById('readme').innerHTML = marked.parse(md);
       });
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
-  <script>lucide.createIcons();</script>
-
 </body>
 </html>
