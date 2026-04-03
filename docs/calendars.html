@@ -1,6 +1,5 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Lucide Icons — MIT — https://lucide.dev
   Served via jsDelivr CDN — https://jsdelivr.com
 -->
 <!DOCTYPE html>
@@ -14,7 +13,7 @@
 <body>
 
   <div class="calendars-page">
-    <!-- Live time + conversion display on the same line -->
+    <!-- Live time and conversion on the same line -->
     <div class="top-bar">
       <a href="desk-clock.html" id="time-link" class="current-time">00:00</a>
       <div class="conversion-display" id="conversion">Click any date</div>
@@ -59,7 +58,6 @@
     let toIFC, toGregorian, isLeap, currentLocale;
 
     async function loadLibrary() {
-      // Primary: jsDelivr CDN
       try {
         const module = await import("https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js");
         toIFC = module.toIFC;
@@ -70,10 +68,9 @@
         init();
         return;
       } catch (err) {
-        console.warn("jsDelivr CDN failed, falling back to local ./index.js");
+        console.warn("CDN failed, falling back to local ./index.js");
       }
 
-      // Fallback: Local file only
       try {
         const module = await import("./index.js");
         toIFC = module.toIFC;
@@ -83,14 +80,14 @@
         console.log("✅ ifcalendar-js loaded from local ./index.js");
         init();
       } catch (fallbackErr) {
-        console.error("❌ Failed to load ifcalendar-js from both CDN and local file", fallbackErr);
+        console.error("❌ Failed to load ifcalendar-js", fallbackErr);
         document.getElementById('conversion').textContent = "Library failed to load";
       }
     }
 
     let selISO = null;
-    let iView = {};   // IFC view (primary)
-    let gView = {};   // Gregorian view (secondary)
+    let iView = {};
+    let gView = {};
 
     function getTodayISO() {
       const now = new Date();
@@ -100,7 +97,6 @@
     function init() {
       const todayISO = getTodayISO();
       selISO = todayISO;
-
       const todayIfc = toIFC(todayISO);
       iView = { year: todayIfc.year, month: todayIfc.month };
       gView = { year: new Date().getFullYear(), month: new Date().getMonth() };
@@ -121,16 +117,14 @@
       }, 1000);
     }
 
-    // ── Helpers using locale ─────────────────────────────────────────────────
     function ifcMonthDays(m, year) {
       if (m === 6 && isLeap(year)) return 29;
       if (m === 13) return 29;
       return 28;
     }
 
-    function setGridRows(gridEl, totalCells) {
-      const rows = Math.ceil(totalCells / 7);
-      gridEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    function setGridRows(gridEl) {
+      gridEl.style.gridTemplateRows = 'repeat(5, 1fr)';
     }
 
     function formatConversion(iso) {
@@ -146,7 +140,7 @@
         const wd = currentLocale.weekdaysShort[ifc.weekday];
         ifcStr = `${currentLocale.ifcMonthsShort[ifc.month-1]} ${ifc.day} (${wd}), ${d[0]}`;
       }
-      return `${gMonthShort} ${parseInt(d[2])}, ${d[0]}  ↔  ${ifcStr}`;
+      return `${ifcStr}  ↔  ${gMonthShort} ${parseInt(d[2])}, ${d[0]}`;
     }
 
     function buildIfcGrid() {
@@ -174,7 +168,8 @@
         el.addEventListener('click', () => selectDate(isoStr));
         grid.appendChild(el);
       }
-      setGridRows(grid, maxDay);
+
+      setGridRows(grid);
     }
 
     function buildGregGrid() {
@@ -201,7 +196,10 @@
         el.addEventListener('click', () => selectDate(iso));
         grid.appendChild(el);
       }
-      setGridRows(grid, firstDay + lastDay);
+
+      const totalCells = firstDay + lastDay;
+      const rows = Math.ceil(totalCells / 7);
+      grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
     }
 
     function buildWeekdays() {
@@ -295,9 +293,6 @@
     // Start
     loadLibrary();
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
-  <script>lucide.createIcons();</script>
 
 </body>
 </html>
