@@ -14,6 +14,7 @@
 <body>
 
   <div class="calendars-page">
+    <!-- Time and conversion on the SAME line -->
     <div class="top-bar">
       <a href="desk-clock.html" id="time-link" class="current-time">00:00</a>
       <div class="conversion-display" id="conversion">Click any date</div>
@@ -79,7 +80,7 @@
       }
     }
 
-    let selISO = null;   // Will store IFC: string (IFC-first)
+    let selISO = null;   // Stores IFC string (IFC-first)
 
     let iView = {};
     let gView = {};
@@ -92,7 +93,7 @@
     function init() {
       const todayGreg = getTodayISO();
       const rich = toIFC(todayGreg, 'object');
-      selISO = rich.ifcISO;                    // Store IFC string
+      selISO = rich.ifcISO;                    // Store as IFC string
       iView = { year: rich.year, month: rich.month };
       gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
 
@@ -124,7 +125,7 @@
 
     function formatConversion() {
       if (!toIFC || !selISO) return "Click any date";
-      const rich = toIFC(toGregorian(selISO), 'object');   // Convert IFC → rich
+      const rich = toIFC(toGregorian(selISO), 'object');
       const g = rich.gregorian;
       return `${rich.short}  ↔  ${g.short}`;
     }
@@ -223,8 +224,15 @@
     }
 
     function selectDate(iso) {
-      selISO = iso;   // Store IFC string directly (IFC-first)
-      const rich = toIFC(toGregorian(iso), 'object');
+      if (iso.startsWith('IFC:')) {
+        selISO = iso;                    // Store IFC string directly
+      } else {
+        // Gregorian click → convert to IFC string
+        const rich = toIFC(iso, 'object');
+        selISO = rich.ifcISO;
+      }
+
+      const rich = toIFC(toGregorian(selISO), 'object');
       iView = { year: rich.year, month: rich.month };
       gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
       render();
