@@ -132,9 +132,9 @@ function createRichIFC(year, month0, day, ifc, locale) {
 /**
  * @typedef {Object} IFCDate
  * @property {number} year
- * @property {number} month - 1-based
- * @property {number} day
- * @property {number|null} weekday
+ * @property {number} month - 1-based (1=January, 7=Sol, 13=December)
+ * @property {number} day - 1-28 normal, 29 for intercalary days
+ * @property {number|null} weekday - 0=Sun...6=Sat, null for intercalary days
  * @property {boolean} isLeapDay
  * @property {boolean} isYearDay
  */
@@ -142,12 +142,16 @@ function createRichIFC(year, month0, day, ifc, locale) {
 /**
  * Converts a Gregorian date to an IFC date.
  *
- * Input: Gregorian ISO string, Date object, or null (today)
+ * Input:
+ *   string → Gregorian ISO string '2026-03-25'
+ *   Date   → JavaScript Date object
+ *   null   → today
+ *
  * Output:
- *   default → IFC string
+ *   default → IFC string 'IFC:2026-03-25'
  *   'short' → short string
  *   'long'  → long string
- *   'object'→ rich object (IFC-first with embedded Gregorian data)
+ *   'object'→ rich bidirectional object (IFC-first)
  */
 function toIFC(input, format, locale = EN) {
   let year, month0, day;
@@ -158,7 +162,7 @@ function toIFC(input, format, locale = EN) {
     day = input.getDate();
   } else if (typeof input === 'string') {
     if (input.startsWith('IFC:')) {
-      throw new Error('toIFC expects Gregorian input. Use toGregorian first if you have an IFC string.');
+      throw new Error('toIFC expects Gregorian input. Use toGregorian() first if you have an IFC string.');
     }
     const [y, m, d] = input.split('-').map(Number);
     year = y;
@@ -186,6 +190,44 @@ function toIFC(input, format, locale = EN) {
     case 'long':  return ifcToLong(year, ifc, locale);
     default:      return ifcToString(year, ifc);
   }
+}
+
+/**
+ * Converts an IFC date to a Gregorian ISO string (or formatted string).
+ */
+function toGregorian(input, format, locale = EN) {
+  let year, month, day;
+  if (typeof input === 'object' && input !== null) {
+    ({ year, month, day } = input);
+    if (!year || !month || !day) throw new Error('IFC object must have year, month and day');
+  } else if (typeof input === 'string') {
+    if (!input.startsWith('IFC:')) throw new Error('IFC strings must start with "IFC:"');
+    const parts = input.slice(4).split('-').map(Number);
+    [year, month, day] = parts;
+    if (!year || !month || !day) throw new Error(`Invalid IFC string: ${input}`);
+  } else {
+    throw new Error('toGregorian expects an IFC string or object');
+  }
+  if (month < 1 || month > 13) throw new Error(`IFC month must be 1-13, got ${month}`);
+  if (day < 1 || day > 29) throw new Error(`IFC day must be 1-29, got ${day}`);
+  if (day === 29) {
+    if (month === 6 && !isLeap(year)) throw new Error('Leap Day only exists in leap years');
+    if (month !== 6 && month !== 13) throw new Error('Day 29 only valid for June (leap years) or December');
+  }
+  const doy = ifcToDoy(year, month, day);
+  const g = doyToGreg(year, doy);
+  const iso = `${year}-${pad(g.month + 1)}-${pad(g.day)}`;
+  if (!format) return iso;
+
+  const weekday = new Date(year, g.month, g.day).getDay();
+
+  if (format === 'short') {
+    return `${locale.weekdaysShort[weekday]} ${locale.gregMonthsShort[g.month]} ${g.day} ${year}`;
+  }
+  if (format === 'long') {
+    return `${locale.weekdays[weekday]} ${locale.gregMonths[g.month]} ${g.day}, ${year}`;
+  }
+  return iso;
 }
 
 export { toIFC, toGregorian, isLeap, EN };

@@ -8,12 +8,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IFC Calendars</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%93%85%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div class="calendars-page">
-    <!-- Live time and conversion on the same line -->
     <div class="top-bar">
       <a href="desk-clock.html" id="time-link" class="current-time">00:00</a>
       <div class="conversion-display" id="conversion">Click any date</div>
@@ -49,12 +49,6 @@
   </div>
 
   <script type="module">
-    /*
-      IFC Library Import (Primary focus of this project)
-      Primary:   jsDelivr CDN
-      Fallback:  ./index.js (local copy in docs/)
-    */
-
     let toIFC, toGregorian, isLeap, currentLocale;
 
     async function loadLibrary() {
@@ -85,7 +79,8 @@
       }
     }
 
-    let selISO = null;
+    let selISO = null;   // Will store IFC: string (IFC-first)
+
     let iView = {};
     let gView = {};
 
@@ -95,11 +90,11 @@
     }
 
     function init() {
-      const todayISO = getTodayISO();
-      selISO = todayISO;
-      const todayIfc = toIFC(todayISO);
-      iView = { year: todayIfc.year, month: todayIfc.month };
-      gView = { year: new Date().getFullYear(), month: new Date().getMonth() };
+      const todayGreg = getTodayISO();
+      const rich = toIFC(todayGreg, 'object');
+      selISO = rich.ifcISO;                    // Store IFC string
+      iView = { year: rich.year, month: rich.month };
+      gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
 
       buildDropdowns();
       buildWeekdays();
@@ -127,20 +122,11 @@
       gridEl.style.gridTemplateRows = 'repeat(5, 1fr)';
     }
 
-    function formatConversion(iso) {
-      if (!toIFC) return "Loading...";
-      const ifc = toIFC(iso);
-      const d = iso.split('-');
-      const gMonthShort = currentLocale.gregMonthsShort[parseInt(d[1])-1];
-
-      let ifcStr;
-      if (ifc.isLeapDay) ifcStr = `Jun 29 — Leap Day ${d[0]}`;
-      else if (ifc.isYearDay) ifcStr = `Dec 29 — Year Day ${d[0]}`;
-      else {
-        const wd = currentLocale.weekdaysShort[ifc.weekday];
-        ifcStr = `${currentLocale.ifcMonthsShort[ifc.month-1]} ${ifc.day} (${wd}), ${d[0]}`;
-      }
-      return `${ifcStr}  ↔  ${gMonthShort} ${parseInt(d[2])}, ${d[0]}`;
+    function formatConversion() {
+      if (!toIFC || !selISO) return "Click any date";
+      const rich = toIFC(toGregorian(selISO), 'object');   // Convert IFC → rich
+      const g = rich.gregorian;
+      return `${rich.short}  ↔  ${g.short}`;
     }
 
     function buildIfcGrid() {
@@ -163,7 +149,7 @@
         }
 
         if (isoStr === selISO) el.classList.add('selected');
-        if (isoStr === getTodayISO()) el.classList.add('today');
+        if (isoStr === toIFC(null, 'object').ifcISO) el.classList.add('today');
 
         el.addEventListener('click', () => selectDate(isoStr));
         grid.appendChild(el);
@@ -191,7 +177,7 @@
         const el = document.createElement('div');
         el.className = 'day';
         el.textContent = d;
-        if (iso === selISO) el.classList.add('selected');
+        if (iso === toGregorian(selISO)) el.classList.add('selected');
         if (iso === getTodayISO()) el.classList.add('today');
         el.addEventListener('click', () => selectDate(iso));
         grid.appendChild(el);
@@ -233,15 +219,14 @@
       syncControls();
       buildIfcGrid();
       buildGregGrid();
-      document.getElementById('conversion').textContent = formatConversion(selISO);
+      document.getElementById('conversion').textContent = formatConversion();
     }
 
     function selectDate(iso) {
-      selISO = iso;
-      const ifc = toIFC(iso);
-      const d = iso.split('-');
-      iView = { year: parseInt(d[0]), month: ifc.month };
-      gView = { year: parseInt(d[0]), month: parseInt(d[1]) - 1 };
+      selISO = iso;   // Store IFC string directly (IFC-first)
+      const rich = toIFC(toGregorian(iso), 'object');
+      iView = { year: rich.year, month: rich.month };
+      gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
       render();
     }
 
