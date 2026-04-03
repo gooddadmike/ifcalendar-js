@@ -14,10 +14,10 @@
 <body>
 
   <div class="calendars-page">
-    <!-- Time and conversion on the SAME line -->
+    <!-- Time + Conversion on the same line, balanced -->
     <div class="top-bar">
-      <a href="desk-clock.html" id="time-link" class="current-time">00:00</a>
-      <div class="conversion-display" id="conversion">Click any date</div>
+      <span id="time-link" class="current-time">00:00</span>
+      <span class="conversion-display" id="conversion">Click any date</span>
     </div>
 
     <div class="calendars" id="calendars">
@@ -53,35 +53,62 @@
     let toIFC, toGregorian, isLeap, currentLocale;
 
     async function loadLibrary() {
+      console.log("🔄 Loading from CDN...");
+
+      // Try CDN first
       try {
         const module = await import("https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js");
         toIFC = module.toIFC;
         toGregorian = module.toGregorian;
         isLeap = module.isLeap;
         currentLocale = module.EN;
-        console.log("✅ ifcalendar-js loaded from jsDelivr CDN");
-        init();
-        return;
+
+        console.log("✅ CDN loaded successfully");
+        await initializeApp();
+        return;                    // Success → stop
       } catch (err) {
-        console.warn("CDN failed, falling back to local ./index.js");
+        console.error("❌ CDN failed:", err.message || err);
       }
 
+      // Only try local if CDN failed
+      console.log("🔄 Trying local fallback...");
       try {
         const module = await import("./index.js");
         toIFC = module.toIFC;
         toGregorian = module.toGregorian;
         isLeap = module.isLeap;
         currentLocale = module.EN;
-        console.log("✅ ifcalendar-js loaded from local ./index.js");
-        init();
+
+        console.log("✅ Local fallback loaded successfully");
+        await initializeApp();
       } catch (fallbackErr) {
-        console.error("❌ Failed to load ifcalendar-js", fallbackErr);
-        document.getElementById('conversion').textContent = "Library failed to load";
+        console.error("❌ Local fallback also failed:", fallbackErr.message || fallbackErr);
+        document.getElementById('conversion').textContent = "❌ Library failed to load";
       }
     }
 
-    let selISO = null;   // Stores IFC string (IFC-first)
+    async function initializeApp() {
+      console.log("🔄 Initializing app...");
+      try {
+        const todayGreg = getTodayISO();
+        const rich = toIFC(todayGreg, 'object');
+        selISO = rich.ifcISO;
+        iView = { year: rich.year, month: rich.month };
+        gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
 
+        buildDropdowns();
+        buildWeekdays();
+        render();
+        startLiveClock();
+
+        console.log("✅ Initialization successful");
+      } catch (err) {
+        console.error("❌ Initialization failed:", err.message || err);
+        document.getElementById('conversion').textContent = "❌ Failed to initialize";
+      }
+    }
+
+    let selISO = null;
     let iView = {};
     let gView = {};
 
@@ -90,26 +117,13 @@
       return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     }
 
-    function init() {
-      const todayGreg = getTodayISO();
-      const rich = toIFC(todayGreg, 'object');
-      selISO = rich.ifcISO;                    // Store as IFC string
-      iView = { year: rich.year, month: rich.month };
-      gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
-
-      buildDropdowns();
-      buildWeekdays();
-      render();
-      startLiveClock();
-    }
-
     function startLiveClock() {
-      const timeLink = document.getElementById('time-link');
+      const timeEl = document.getElementById('time-link');
       setInterval(() => {
         const now = new Date();
         let h = now.getHours();
         const m = String(now.getMinutes()).padStart(2, '0');
-        timeLink.textContent = `${h}:${m}`;
+        timeEl.textContent = `${h}:${m}`;
       }, 1000);
     }
 
@@ -224,13 +238,7 @@
     }
 
     function selectDate(iso) {
-      if (iso.startsWith('IFC:')) {
-        selISO = iso;                    // Store IFC string directly
-      } else {
-        // Gregorian click → convert to IFC string
-        const rich = toIFC(iso, 'object');
-        selISO = rich.ifcISO;
-      }
+      selISO = iso.startsWith('IFC:') ? iso : toIFC(iso, 'object').ifcISO;
 
       const rich = toIFC(toGregorian(selISO), 'object');
       iView = { year: rich.year, month: rich.month };
