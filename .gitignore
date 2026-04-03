@@ -2,6 +2,8 @@
 node_modules/
 
 # Build / temp
+dist/*.d.ts
+dist/*.d.cts
 dist/*.map
 build/
 coverage/

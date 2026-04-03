@@ -7,7 +7,7 @@
     "ifcalendar": "./bin/ifcalendar.js"
   },
   "scripts": {
-    "build": "tsup src/index.js --format cjs,esm --clean --dts --minify --sourcemap --no-sourcemap",
+    "build": "tsup src/index.js --format cjs,esm --clean --minify --no-sourcemap",
     "postbuild": "cp dist/index.js docs/index.js",
     "prepublishOnly": "npm run build",
     "dry-run": "npm publish --dry-run",
@@ -23,17 +23,10 @@
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.cjs"
-      }
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "jest": {
@@ -69,7 +62,6 @@
     "@babel/preset-env": "^7.29.2",
     "babel-jest": "^30.3.0",
     "jest": "^30.3.0",
-    "tsup": "^8.5.1",
-    "typescript": "^6.0.2"
+    "tsup": "^8.5.1"
   }
 }
