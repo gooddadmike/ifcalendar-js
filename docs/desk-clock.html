@@ -1,6 +1,7 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
   Desk Clock — respects user's actual 12h/24h system preference
+  Cluade detection block
 -->
 
 <!DOCTYPE html>
@@ -24,7 +25,6 @@
         </div>
       </div>
 
-```
   <div class="clock-face">
     <h1 class="clock" id="clock">00:00</h1>
   </div>
@@ -44,15 +44,15 @@
     import { toIFC } from "./index.js";
 
     // Detect system 12h/24h preference.
-    // Key: pass undefined (not navigator.language) so the browser uses
-    // the OS regional format setting, which is where this preference lives.
-    const testTime = new Date(2025, 0, 1, 14, 0); // 2 PM
-    const defaultFormat = new Intl.DateTimeFormat(undefined, {
+    // resolvedOptions().hourCycle is more reliable than formatting a test time,
+    // especially on iOS/iPadOS where the 24-Hour Time setting doesn't always
+    // affect Intl formatted output the same way desktop browsers do.
+    const hourCycle = new Intl.DateTimeFormat(undefined, {
       hour: 'numeric'
-    }).format(testTime);
+    }).resolvedOptions().hourCycle;
 
-    // If 2 PM renders as "14", the system is set to 24h
-    let use24 = defaultFormat.includes('14');
+    // h23 or h24 = 24h clock; h11 or h12 = 12h clock
+    let use24 = hourCycle === 'h23' || hourCycle === 'h24';
 
     function updateDates() {
       const now = new Date();
