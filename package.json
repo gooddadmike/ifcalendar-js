@@ -4,7 +4,7 @@
   "description": "A lightweight JavaScript library for converting dates between the normal Gregorian calendar and the International Fixed Calendar (IFC).",
   "type": "module",
   "bin": {
-    "ifcalendar": "./bin/ifcalendar.js"
+    "ifcalendar": "bin/ifcalendar.js"
   },
   "scripts": {
     "build": "tsup src/index.js --format cjs,esm --clean --minify --no-sourcemap",
