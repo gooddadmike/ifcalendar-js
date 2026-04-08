@@ -44,6 +44,8 @@
       .formatToParts(new Date());
     use24 = !parts.some(p => p.type === 'dayPeriod');
 
+    console.log(navigator.language);
+    
     function updateDates() {
       const now = new Date();
       const rich = toIFC(now, 'object');
