@@ -1,6 +1,5 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Take #8 - Correct 24h detection (no forcing)
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -38,22 +37,12 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    console.log("=== Desk Clock Take #8 - Correct detection ===");
-
-    // Correct way: Ask for the user's default formatting
-    const testTime = new Date(2025, 0, 1, 14, 0); // 2 PM
-
-    const defaultFormat = new Intl.DateTimeFormat(navigator.language, { 
+    // Robust 24h detection
+    const test14 = new Intl.DateTimeFormat(navigator.language, { 
       hour: 'numeric' 
-    }).format(testTime);
+    }).format(new Date(2025, 0, 1, 14, 0));
 
-    console.log("System language:", navigator.language);
-    console.log("Default formatting of 14:00:", defaultFormat);
-
-    // If the output contains "14" (not "2"), it's using 24h
-    let use24 = defaultFormat.includes('14');
-
-    console.log("Detected use24 =", use24);
+    let use24 = test14.includes('14');
 
     function updateDates() {
       const now = new Date();
@@ -82,15 +71,14 @@
       updateDates();
     }
 
-    // Tap the big clock to toggle
+    // Tap the big clock to toggle 12h / 24h
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
-      console.log("Toggled use24 to:", use24);
       updateClock();
     });
 
-    update();
     setInterval(update, 60000);
+    update();
 
     // Orientation detection
     const layout = document.getElementById('clock-layout');
