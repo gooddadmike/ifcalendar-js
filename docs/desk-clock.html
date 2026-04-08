@@ -1,6 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Take #6 - Improved 24h detection
+  Take #7 - Fixed timing + full logging
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -38,20 +38,24 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    console.log("=== Desk Clock Take #6 - Improved 24h detection ===");
+    console.log("=== Desk Clock Take #7 - Full detection + timing fix ===");
 
-    // Improved detection - prioritize the 14:00 test
+    // DayPeriod check (the one that was misleading)
+    const parts = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
+      .formatToParts(new Date());
+    const hasDayPeriod = parts.some(p => p.type === 'dayPeriod');
+    console.log("DayPeriod check - Has AM/PM:", hasDayPeriod);
+
+    // 14:00 test (more reliable for 24h preference)
     const test14 = new Intl.DateTimeFormat(navigator.language, { 
       hour: 'numeric', 
       hour12: false 
     }).format(new Date(2025, 0, 1, 14, 0));
+    console.log("14:00 test - Formatted as:", test14);
 
-    console.log("System language:", navigator.language);
-    console.log("14:00 formatted as:", test14);
-
-    let use24 = test14.includes('14') || test14.length >= 2 && !test14.includes('AM') && !test14.includes('PM');
-
-    console.log("Final detected use24 =", use24);
+    // Final decision - prefer the 14:00 test
+    let use24 = test14.includes('14');
+    console.log("FINAL detected use24 =", use24);
 
     function updateDates() {
       const now = new Date();
@@ -80,16 +84,17 @@
       updateDates();
     }
 
-    // Tap the big clock to toggle
+    // Tap to toggle
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       console.log("Toggled use24 to:", use24);
       updateClock();
     });
 
-    // Initial update
-    console.log("Running initial update with use24 =", use24);
+    // Force two updates to ensure correct format shows immediately
+    console.log("Running initial update...");
     update();
+    setTimeout(update, 10);   // Small delay to force re-render after detection
 
     setInterval(update, 60000);
 
