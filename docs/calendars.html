@@ -1,6 +1,5 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Served via jsDelivr CDN — https://jsdelivr.com
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -14,9 +13,8 @@
 <body>
 
   <div class="calendars-page">
-    <!-- Time + Conversion on the same line, balanced -->
     <div class="top-bar">
-      <span id="time-link" class="current-time">00:00</span>
+      <a href="desk-clock.html" id="time-link" class="current-time">00:00</a>
       <span class="conversion-display" id="conversion">Click any date</span>
     </div>
 
@@ -50,71 +48,35 @@
   </div>
 
   <script type="module">
-    let toIFC, toGregorian, isLeap, currentLocale;
-
-    async function loadLibrary() {
-      console.log("🔄 Loading from CDN...");
-
-      // Try CDN first
-      try {
-        const module = await import("https://cdn.jsdelivr.net/npm/ifcalendar-js/dist/index.js");
-        toIFC = module.toIFC;
-        toGregorian = module.toGregorian;
-        isLeap = module.isLeap;
-        currentLocale = module.EN;
-
-        console.log("✅ CDN loaded successfully");
-        await initializeApp();
-        return;                    // Success → stop
-      } catch (err) {
-        console.error("❌ CDN failed:", err.message || err);
-      }
-
-      // Only try local if CDN failed
-      console.log("🔄 Trying local fallback...");
-      try {
-        const module = await import("./index.js");
-        toIFC = module.toIFC;
-        toGregorian = module.toGregorian;
-        isLeap = module.isLeap;
-        currentLocale = module.EN;
-
-        console.log("✅ Local fallback loaded successfully");
-        await initializeApp();
-      } catch (fallbackErr) {
-        console.error("❌ Local fallback also failed:", fallbackErr.message || fallbackErr);
-        document.getElementById('conversion').textContent = "❌ Library failed to load";
-      }
-    }
-
-    async function initializeApp() {
-      console.log("🔄 Initializing app...");
-      try {
-        const todayGreg = getTodayISO();
-        const rich = toIFC(todayGreg, 'object');
-        selISO = rich.ifcISO;
-        iView = { year: rich.year, month: rich.month };
-        gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
-
-        buildDropdowns();
-        buildWeekdays();
-        render();
-        startLiveClock();
-
-        console.log("✅ Initialization successful");
-      } catch (err) {
-        console.error("❌ Initialization failed:", err.message || err);
-        document.getElementById('conversion').textContent = "❌ Failed to initialize";
-      }
-    }
+    // Direct local import - no CDN, no fallback logic
+    import { toIFC, toGregorian, isLeap, EN } from "./index.js";
 
     let selISO = null;
     let iView = {};
     let gView = {};
+    let use24 = false;
 
     function getTodayISO() {
       const now = new Date();
       return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    }
+
+    function init() {
+      const todayGreg = getTodayISO();
+      const rich = toIFC(todayGreg, 'object');
+      selISO = rich.ifcISO;
+      iView = { year: rich.year, month: rich.month };
+      gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
+
+      // Auto-detect system 24h preference
+      const parts = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
+        .formatToParts(new Date());
+      use24 = !parts.some(p => p.type === 'dayPeriod');
+
+      buildDropdowns();
+      buildWeekdays();
+      render();
+      startLiveClock();
     }
 
     function startLiveClock() {
@@ -123,9 +85,16 @@
         const now = new Date();
         let h = now.getHours();
         const m = String(now.getMinutes()).padStart(2, '0');
-        timeEl.textContent = `${h}:${m}`;
+        timeEl.textContent = use24 ? `${String(h).padStart(2,'0')}:${m}` : `${h % 12 || 12}:${m}`;
       }, 1000);
     }
+
+    // Click to toggle 12h/24h
+    document.getElementById('time-link').addEventListener('click', (e) => {
+      e.preventDefault(); // prevent navigation when tapping time
+      use24 = !use24;
+      startLiveClock(); // immediate update
+    });
 
     function ifcMonthDays(m, year) {
       if (m === 6 && isLeap(year)) return 29;
@@ -292,7 +261,7 @@
     });
 
     // Start
-    loadLibrary();
+    init();
   </script>
 
 </body>
