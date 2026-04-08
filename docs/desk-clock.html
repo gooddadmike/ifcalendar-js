@@ -47,7 +47,6 @@
     const hasDayPeriod = parts.some(p => p.type === 'dayPeriod');
     console.log("Has dayPeriod (AM/PM):", hasDayPeriod);
 
-    // Secondary test: format 14:00 and see if it shows "14" or "2"
     const test14 = new Intl.DateTimeFormat(navigator.language, { 
       hour: 'numeric', 
       hour12: false 
@@ -55,7 +54,7 @@
     console.log("14:00 formatted as:", test14);
 
     let use24 = !hasDayPeriod || test14.includes('14');
-    console.log("Final detected use24 =", use24, "(true = 24h mode)");
+    console.log("Final detected use24 =", use24);
 
     function updateDates() {
       const now = new Date();
@@ -84,15 +83,17 @@
       updateDates();
     }
 
-    // Tap the big clock to toggle 12h / 24h
+    // Tap the big clock to toggle
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       console.log("Toggled use24 to:", use24);
       updateClock();
     });
 
-    setInterval(update, 60000);
+    // Initial update
     update();
+
+    setInterval(update, 60000);
 
     // Orientation detection
     const layout = document.getElementById('clock-layout');
