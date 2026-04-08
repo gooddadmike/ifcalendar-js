@@ -48,13 +48,18 @@
   </div>
 
   <script type="module">
-    // Direct local import - no CDN, no fallback logic
+    // Direct local import from docs/index.js
     import { toIFC, toGregorian, isLeap, EN } from "./index.js";
 
     let selISO = null;
     let iView = {};
     let gView = {};
     let use24 = false;
+
+    // Auto-detect system 24h preference
+    const parts = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
+      .formatToParts(new Date());
+    use24 = !parts.some(p => p.type === 'dayPeriod');
 
     function getTodayISO() {
       const now = new Date();
@@ -67,11 +72,6 @@
       selISO = rich.ifcISO;
       iView = { year: rich.year, month: rich.month };
       gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
-
-      // Auto-detect system 24h preference
-      const parts = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
-        .formatToParts(new Date());
-      use24 = !parts.some(p => p.type === 'dayPeriod');
 
       buildDropdowns();
       buildWeekdays();
@@ -89,11 +89,11 @@
       }, 1000);
     }
 
-    // Click to toggle 12h/24h
+    // Tap time to toggle 12h/24h
     document.getElementById('time-link').addEventListener('click', (e) => {
-      e.preventDefault(); // prevent navigation when tapping time
+      e.preventDefault();
       use24 = !use24;
-      startLiveClock(); // immediate update
+      startLiveClock();
     });
 
     function ifcMonthDays(m, year) {
