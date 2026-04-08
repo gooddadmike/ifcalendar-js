@@ -1,5 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
+  Take #4
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -37,7 +38,9 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    // === 24h Detection with Logging ===
+    console.log("=== Desk Clock Take #4 ===");
+
+    // 24h Detection
     console.log("System language:", navigator.language);
 
     const parts = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
@@ -90,7 +93,8 @@
       updateClock();
     });
 
-    // Initial update
+    // Force initial update after detection
+    console.log("Running initial update...");
     update();
 
     setInterval(update, 60000);
