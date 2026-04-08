@@ -1,6 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Take #7 - Fixed timing + full logging
+  Take #8 - Correct 24h detection (no forcing)
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -38,24 +38,22 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    console.log("=== Desk Clock Take #7 - Full detection + timing fix ===");
+    console.log("=== Desk Clock Take #8 - Correct detection ===");
 
-    // DayPeriod check (the one that was misleading)
-    const parts = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
-      .formatToParts(new Date());
-    const hasDayPeriod = parts.some(p => p.type === 'dayPeriod');
-    console.log("DayPeriod check - Has AM/PM:", hasDayPeriod);
+    // Correct way: Ask for the user's default formatting
+    const testTime = new Date(2025, 0, 1, 14, 0); // 2 PM
 
-    // 14:00 test (more reliable for 24h preference)
-    const test14 = new Intl.DateTimeFormat(navigator.language, { 
-      hour: 'numeric', 
-      hour12: false 
-    }).format(new Date(2025, 0, 1, 14, 0));
-    console.log("14:00 test - Formatted as:", test14);
+    const defaultFormat = new Intl.DateTimeFormat(navigator.language, { 
+      hour: 'numeric' 
+    }).format(testTime);
 
-    // Final decision - prefer the 14:00 test
-    let use24 = test14.includes('14');
-    console.log("FINAL detected use24 =", use24);
+    console.log("System language:", navigator.language);
+    console.log("Default formatting of 14:00:", defaultFormat);
+
+    // If the output contains "14" (not "2"), it's using 24h
+    let use24 = defaultFormat.includes('14');
+
+    console.log("Detected use24 =", use24);
 
     function updateDates() {
       const now = new Date();
@@ -84,18 +82,14 @@
       updateDates();
     }
 
-    // Tap to toggle
+    // Tap the big clock to toggle
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       console.log("Toggled use24 to:", use24);
       updateClock();
     });
 
-    // Force two updates to ensure correct format shows immediately
-    console.log("Running initial update...");
     update();
-    setTimeout(update, 10);   // Small delay to force re-render after detection
-
     setInterval(update, 60000);
 
     // Orientation detection
