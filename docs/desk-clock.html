@@ -1,6 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Desk Clock — diagnostic build
+  Desk Clock — tap clock to toggle 12h/24h
 -->
 
 <!DOCTYPE html>
@@ -12,21 +12,6 @@
   <title>IFC Desk Clock</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%95%92%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
-  <style>
-    #diag {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.85);
-      color: #0f0;
-      font-family: monospace;
-      font-size: 11px;
-      padding: 8px 12px;
-      z-index: 9999;
-      line-height: 1.8;
-    }
-  </style>
 </head>
 <body>
 
@@ -39,6 +24,7 @@
         </div>
       </div>
 
+```
   <div class="clock-face">
     <h1 class="clock" id="clock">00:00</h1>
   </div>
@@ -50,36 +36,17 @@
     </div>
   </div>
 </div>
+```
 
   </div>
-
-  <div id="diag"></div>
 
   <script type="module">
     import { toIFC } from "./index.js";
 
-    // Diagnostics
-    const testTime = new Date();
-    testTime.setHours(14, 0, 0, 0);
-
-    const fmtUndefined = new Intl.DateTimeFormat(undefined,          { hour: 'numeric' });
-    const fmtNavLang   = new Intl.DateTimeFormat(navigator.language,  { hour: 'numeric' });
-
-    const hourCycle = fmtUndefined.resolvedOptions().hourCycle;
-    let use24 = hourCycle === 'h23' || hourCycle === 'h24';
-
-    const diagLines = [
-      `navigator.language:   ${navigator.language}`,
-      `navigator.languages:  ${navigator.languages.join(', ')}`,
-      `undefined formatted:  ${fmtUndefined.format(testTime)}`,
-      `undefined hourCycle:  ${hourCycle}`,
-      `undefined locale:     ${fmtUndefined.resolvedOptions().locale}`,
-      `navLang formatted:    ${fmtNavLang.format(testTime)}`,
-      `navLang hourCycle:    ${fmtNavLang.resolvedOptions().hourCycle}`,
-      `use24 detected as:    ${use24}`,
-    ];
-
-    document.getElementById('diag').innerHTML = diagLines.join('<br>');
+    // Default to 12h. Tap the clock to toggle.
+    // Auto-detect is not possible for en-US — all Apple and Windows devices
+    // report h12 regardless of the OS 24-hour setting.
+    let use24 = false;
 
     function updateDates() {
       const now = new Date();
