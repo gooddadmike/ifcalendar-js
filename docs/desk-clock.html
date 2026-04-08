@@ -1,5 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
+  Final - Defaults to 24h, tap to toggle
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -37,12 +38,7 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    // Robust 24h detection
-    const test14 = new Intl.DateTimeFormat(navigator.language, { 
-      hour: 'numeric' 
-    }).format(new Date(2025, 0, 1, 14, 0));
-
-    let use24 = test14.includes('14');
+    let use24 = true;   // Default to 24h - change to false if you ever want 12h default
 
     function updateDates() {
       const now = new Date();
