@@ -1,7 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
   Desk Clock — respects user's actual 12h/24h system preference
-  Cluade detection block
 -->
 
 <!DOCTYPE html>
@@ -25,6 +24,7 @@
         </div>
       </div>
 
+```
   <div class="clock-face">
     <h1 class="clock" id="clock">00:00</h1>
   </div>
@@ -43,16 +43,30 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    // Detect system 12h/24h preference.
-    // resolvedOptions().hourCycle is more reliable than formatting a test time,
-    // especially on iOS/iPadOS where the 24-Hour Time setting doesn't always
-    // affect Intl formatted output the same way desktop browsers do.
-    const hourCycle = new Intl.DateTimeFormat(undefined, {
-      hour: 'numeric'
-    }).resolvedOptions().hourCycle;
+    // --- DIAGNOSTIC: open Safari console to read these values ---
+    const testTime = new Date();
+    testTime.setHours(14, 0, 0, 0);
 
-    // h23 or h24 = 24h clock; h11 or h12 = 12h clock
+    const fmtUndefined   = new Intl.DateTimeFormat(undefined,          { hour: 'numeric' });
+    const fmtNavLang     = new Intl.DateTimeFormat(navigator.language,  { hour: 'numeric' });
+    const fmtNavLangH23  = new Intl.DateTimeFormat(navigator.language,  { hour: 'numeric', hourCycle: 'h23' });
+
+    console.log('--- IFC Clock Diagnostics ---');
+    console.log('navigator.language:          ', navigator.language);
+    console.log('navigator.languages:         ', navigator.languages);
+    console.log('undefined locale formatted:  ', fmtUndefined.format(testTime));
+    console.log('undefined hourCycle:         ', fmtUndefined.resolvedOptions().hourCycle);
+    console.log('undefined locale:            ', fmtUndefined.resolvedOptions().locale);
+    console.log('navLang formatted:           ', fmtNavLang.format(testTime));
+    console.log('navLang hourCycle:           ', fmtNavLang.resolvedOptions().hourCycle);
+    console.log('navLang h23 formatted:       ', fmtNavLangH23.format(testTime));
+    console.log('-----------------------------');
+
+    // Current best-guess detection — may be wrong on iPadOS (that's what we're testing)
+    const hourCycle = fmtUndefined.resolvedOptions().hourCycle;
     let use24 = hourCycle === 'h23' || hourCycle === 'h24';
+    console.log('use24 detected as:           ', use24);
+    console.log('-----------------------------');
 
     function updateDates() {
       const now = new Date();
