@@ -1,6 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Take #4
+  Take #6 - Improved 24h detection
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -38,25 +38,19 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    console.log("=== Desk Clock Take #4 ===");
+    console.log("=== Desk Clock Take #6 - Improved 24h detection ===");
 
-    // 24h Detection
-    console.log("System language:", navigator.language);
-
-    const parts = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
-      .formatToParts(new Date());
-    console.log("DateTimeFormat parts:", parts);
-
-    const hasDayPeriod = parts.some(p => p.type === 'dayPeriod');
-    console.log("Has dayPeriod (AM/PM):", hasDayPeriod);
-
+    // Improved detection - prioritize the 14:00 test
     const test14 = new Intl.DateTimeFormat(navigator.language, { 
       hour: 'numeric', 
       hour12: false 
     }).format(new Date(2025, 0, 1, 14, 0));
+
+    console.log("System language:", navigator.language);
     console.log("14:00 formatted as:", test14);
 
-    let use24 = !hasDayPeriod || test14.includes('14');
+    let use24 = test14.includes('14') || test14.length >= 2 && !test14.includes('AM') && !test14.includes('PM');
+
     console.log("Final detected use24 =", use24);
 
     function updateDates() {
@@ -93,8 +87,8 @@
       updateClock();
     });
 
-    // Force initial update after detection
-    console.log("Running initial update...");
+    // Initial update
+    console.log("Running initial update with use24 =", use24);
     update();
 
     setInterval(update, 60000);
