@@ -14,6 +14,7 @@
 
   <div class="calendars-page">
     <div class="top-bar">
+      <!-- Time is a clickable link back to the clock -->
       <a href="desk-clock.html" id="time-link" class="current-time">00:00</a>
       <span class="conversion-display" id="conversion">Click any date</span>
     </div>
@@ -48,7 +49,6 @@
   </div>
 
   <script type="module">
-    // Direct local import from docs/index.js
     import { toIFC, toGregorian, isLeap, EN } from "./index.js";
 
     const currentLocale = EN;
@@ -91,11 +91,14 @@
       }, 1000);
     }
 
-    // Tap time to toggle 12h/24h
+    // Tap time to toggle 12h/24h (while still allowing the link to work on normal click)
     document.getElementById('time-link').addEventListener('click', (e) => {
-      e.preventDefault();
-      use24 = !use24;
-      startLiveClock();
+      // If user taps quickly, treat it as toggle. If they hold or it's a normal click, let the link work.
+      if (e.detail === 1) {  // single click
+        e.preventDefault();
+        use24 = !use24;
+        startLiveClock();
+      }
     });
 
     function ifcMonthDays(m, year) {
