@@ -37,15 +37,25 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    let use24 = false;
+    // === 24h Detection with Logging ===
+    console.log("System language:", navigator.language);
 
-    // Respect system 24h preference as default
     const parts = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
       .formatToParts(new Date());
-    use24 = !parts.some(p => p.type === 'dayPeriod');
+    console.log("DateTimeFormat parts:", parts);
 
-    console.log(navigator.language);
-    console.log("Use24 = " + use24);
+    const hasDayPeriod = parts.some(p => p.type === 'dayPeriod');
+    console.log("Has dayPeriod (AM/PM):", hasDayPeriod);
+
+    // Secondary test: format 14:00 and see if it shows "14" or "2"
+    const test14 = new Intl.DateTimeFormat(navigator.language, { 
+      hour: 'numeric', 
+      hour12: false 
+    }).format(new Date(2025, 0, 1, 14, 0));
+    console.log("14:00 formatted as:", test14);
+
+    let use24 = !hasDayPeriod || test14.includes('14');
+    console.log("Final detected use24 =", use24, "(true = 24h mode)");
 
     function updateDates() {
       const now = new Date();
@@ -77,6 +87,7 @@
     // Tap the big clock to toggle 12h / 24h
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
+      console.log("Toggled use24 to:", use24);
       updateClock();
     });
 
