@@ -1,6 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Final - Respect system 12h/24h + native Intl formatting
+  Desk Clock — respects user's actual 12h/24h system preference
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -38,43 +38,36 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    // Reliable detection of user's actual 12h/24h preference
+    // Detect system 12h/24h preference.
+    // Key: pass undefined (not navigator.language) so the browser uses
+    // the OS regional format setting, which is where this preference lives.
     const testTime = new Date(2025, 0, 1, 14, 0); // 2 PM
-
-    const defaultFormat = new Intl.DateTimeFormat(undefined, { 
-      hour: 'numeric' 
+    const defaultFormat = new Intl.DateTimeFormat(undefined, {
+      hour: 'numeric'
     }).format(testTime);
 
+    // If 2 PM renders as "14", the system is set to 24h
     let use24 = defaultFormat.includes('14');
 
     function updateDates() {
       const now = new Date();
       const rich = toIFC(now, 'object');
-
       document.getElementById('ifc-date').textContent = rich.short;
       document.getElementById('greg-date').textContent = rich.gregorian.short;
     }
 
     function updateClock() {
       const now = new Date();
+      const m = String(now.getMinutes()).padStart(2, '0');
 
       if (use24) {
-        // 24h format using Intl (matches system)
-        const formatter = new Intl.DateTimeFormat(undefined, {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        });
-        document.getElementById('clock').textContent = formatter.format(now);
+        const h = String(now.getHours()).padStart(2, '0');
+        document.getElementById('clock').textContent = `${h}:${m}`;
       } else {
-        // 12h format with AM/PM
-        const formatter = new Intl.DateTimeFormat(undefined, {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true
-        });
-        const formatted = formatter.format(now);
-        document.getElementById('clock').innerHTML = formatted.replace(' ', '<sup class="ampm">') + '</sup>';
+        const h = now.getHours() % 12 || 12;
+        const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+        document.getElementById('clock').innerHTML =
+          `${h}:${m}<sup class="ampm">${ampm}</sup>`;
       }
     }
 
@@ -83,7 +76,7 @@
       updateDates();
     }
 
-    // Tap the big clock to toggle
+    // Tap the clock face to toggle 12h/24h
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       updateClock();
@@ -92,7 +85,7 @@
     setInterval(update, 60000);
     update();
 
-    // Orientation detection
+    // Orientation / layout detection
     const layout = document.getElementById('clock-layout');
     const ro = new ResizeObserver(entries => {
       const { width, height } = entries[0].contentRect;
