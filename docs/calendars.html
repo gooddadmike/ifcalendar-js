@@ -14,7 +14,7 @@
 
   <div class="calendars-page">
     <div class="top-bar">
-      <!-- Time is a clickable link back to the clock -->
+      <!-- Pure link - any click goes back to clock -->
       <a href="desk-clock.html" id="time-link" class="current-time">00:00</a>
       <span class="conversion-display" id="conversion">Click any date</span>
     </div>
@@ -56,12 +56,6 @@
     let selISO = null;
     let iView = {};
     let gView = {};
-    let use24 = false;
-
-    // Auto-detect system 24h preference
-    const parts = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
-      .formatToParts(new Date());
-    use24 = !parts.some(p => p.type === 'dayPeriod');
 
     function getTodayISO() {
       const now = new Date();
@@ -87,19 +81,9 @@
         const now = new Date();
         let h = now.getHours();
         const m = String(now.getMinutes()).padStart(2, '0');
-        timeEl.textContent = use24 ? `${String(h).padStart(2,'0')}:${m}` : `${h % 12 || 12}:${m}`;
+        timeEl.textContent = `${h}:${m}`;   // Always 24h on calendars (simple)
       }, 1000);
     }
-
-    // Tap time to toggle 12h/24h (while still allowing the link to work on normal click)
-    document.getElementById('time-link').addEventListener('click', (e) => {
-      // If user taps quickly, treat it as toggle. If they hold or it's a normal click, let the link work.
-      if (e.detail === 1) {  // single click
-        e.preventDefault();
-        use24 = !use24;
-        startLiveClock();
-      }
-    });
 
     function ifcMonthDays(m, year) {
       if (m === 6 && isLeap(year)) return 29;
@@ -220,7 +204,7 @@
       render();
     }
 
-    // Nav handlers
+    // Nav handlers (unchanged)
     document.getElementById('iPrev').addEventListener('click', () => {
       if (iView.month === 1) { iView.month = 13; iView.year--; }
       else iView.month--;

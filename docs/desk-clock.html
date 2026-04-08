@@ -14,7 +14,6 @@
 
   <div class="clock-page">
     <div class="clock-layout" id="clock-layout">
-      <!-- IFC -->
       <div class="clock-date">
         <div class="date-line">
           <span class="label">IFC</span>
@@ -22,12 +21,10 @@
         </div>
       </div>
 
-      <!-- Clock -->
       <div class="clock-face">
         <h1 class="clock" id="clock">00:00</h1>
       </div>
 
-      <!-- Gregorian -->
       <div class="clock-date">
         <div class="date-line">
           <span class="label">Gregorian</span>
@@ -38,12 +35,11 @@
   </div>
 
   <script type="module">
-    // Direct local import - no CDN, same code as published
     import { toIFC } from "./index.js";
 
     let use24 = false;
 
-    // Auto-detect system 24h preference
+    // Respect system 24h preference as default
     const parts = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' })
       .formatToParts(new Date());
     use24 = !parts.some(p => p.type === 'dayPeriod');
@@ -75,13 +71,12 @@
       updateDates();
     }
 
-    // Tap clock to toggle 12h / 24h
+    // Tap the big clock to toggle 12h / 24h
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       updateClock();
     });
 
-    // Init
     setInterval(update, 60000);
     update();
 
