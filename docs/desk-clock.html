@@ -1,6 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Final - Respect user's actual default (12h or 24h)
+  Final - Respect system 12h/24h + native Intl formatting
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -38,14 +38,13 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    // Respect user's actual default setting (12h or 24h)
+    // Reliable detection of user's actual 12h/24h preference
     const testTime = new Date(2025, 0, 1, 14, 0); // 2 PM
 
-    const defaultFormat = new Intl.DateTimeFormat(navigator.language, { 
+    const defaultFormat = new Intl.DateTimeFormat(undefined, { 
       hour: 'numeric' 
     }).format(testTime);
 
-    // If it shows "14" instead of "2", user prefers 24h
     let use24 = defaultFormat.includes('14');
 
     function updateDates() {
@@ -58,15 +57,24 @@
 
     function updateClock() {
       const now = new Date();
-      let h = now.getHours();
-      const m = String(now.getMinutes()).padStart(2, '0');
 
       if (use24) {
-        document.getElementById('clock').textContent = `${String(h).padStart(2, '0')}:${m}`;
+        // 24h format using Intl (matches system)
+        const formatter = new Intl.DateTimeFormat(undefined, {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+        document.getElementById('clock').textContent = formatter.format(now);
       } else {
-        h = h % 12 || 12;
-        document.getElementById('clock').innerHTML = 
-          `${h}:${m}<sup class="ampm">${now.getHours() >= 12 ? 'PM' : 'AM'}</sup>`;
+        // 12h format with AM/PM
+        const formatter = new Intl.DateTimeFormat(undefined, {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        });
+        const formatted = formatter.format(now);
+        document.getElementById('clock').innerHTML = formatted.replace(' ', '<sup class="ampm">') + '</sup>';
       }
     }
 
