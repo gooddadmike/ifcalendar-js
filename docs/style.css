@@ -111,11 +111,13 @@ body {
 }
 
 .clock sup.ampm {
-  font-size: 0.25em;
+  font-size: 0.32em;
   font-weight: 400;
-  vertical-align: super;
-  letter-spacing: 0.05em;
+  vertical-align: top;           /* Changed from super to top for better alignment */
+  position: relative;
+  top: -0.35em;                  /* Fine-tune vertical position */
   color: var(--muted);
+  margin-left: 2px;
 }
 
 /* Date labels */
@@ -171,12 +173,14 @@ body {
   opacity: 0.85;
 }
 
-.ampm {
+.current-time sup.ampm {
   font-size: 0.75em;
-  vertical-align: super;
+  vertical-align: top;
+  position: relative;
+  top: -0.25em;                   /* Adjusted for better top alignment */
   margin-left: 2px;
-  font-weight: normal;
   color: var(--muted);
+  font-weight: normal;
 }
 
 .conversion-display {
