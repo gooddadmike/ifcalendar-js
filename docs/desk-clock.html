@@ -1,10 +1,8 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Desk Clock — tap clock to toggle 12h/24h
+  Simple - Defaults to 12h (AM/PM), tap big clock to toggle to 24h
 -->
-
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -24,47 +22,46 @@
         </div>
       </div>
 
-  <div class="clock-face">
-    <h1 class="clock" id="clock">00:00</h1>
-  </div>
+      <div class="clock-face">
+        <h1 class="clock" id="clock">00:00</h1>
+      </div>
 
-  <div class="clock-date">
-    <div class="date-line">
-      <span class="label">Gregorian</span>
-      <a class="value" id="greg-date" href="calendars.html">Loading…</a>
+      <div class="clock-date">
+        <div class="date-line">
+          <span class="label">Gregorian</span>
+          <a class="value" id="greg-date" href="calendars.html">Loading…</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-
   </div>
 
   <script type="module">
     import { toIFC } from "./index.js";
 
-    // Default to 12h. Tap the clock to toggle.
-    // Auto-detect is not possible for en-US — all Apple and Windows devices
-    // report h12 regardless of the OS 24-hour setting.
-    let use24 = false;
+    let use24 = false;   // Default = 12h with AM/PM
 
     function updateDates() {
       const now = new Date();
       const rich = toIFC(now, 'object');
+      const richGregShort = rich.gregorian.short.replace(/\s*\d{4}\s*$/, '');
+
       document.getElementById('ifc-date').textContent = rich.short;
-      document.getElementById('greg-date').textContent = rich.gregorian.short;
+      document.getElementById('greg-date').textContent = richGregShort;
     }
 
     function updateClock() {
       const now = new Date();
+      let h = now.getHours();
       const m = String(now.getMinutes()).padStart(2, '0');
 
       if (use24) {
-        const h = String(now.getHours()).padStart(2, '0');
-        document.getElementById('clock').textContent = `${h}:${m}`;
+        // 24h
+        document.getElementById('clock').textContent = `${String(h).padStart(2, '0')}:${m}`;
       } else {
-        const h = now.getHours() % 12 || 12;
-        const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-        document.getElementById('clock').innerHTML =
-          `${h}:${m}<sup class="ampm">${ampm}</sup>`;
+        // 12h with AM/PM
+        h = h % 12 || 12;
+        document.getElementById('clock').innerHTML = 
+          `${h}:${m}<sup class="ampm">${now.getHours() >= 12 ? 'PM' : 'AM'}</sup>`;
       }
     }
 
@@ -73,7 +70,7 @@
       updateDates();
     }
 
-    // Tap the clock face to toggle 12h/24h
+    // Tap the big clock to toggle between 12h and 24h
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       updateClock();
@@ -82,7 +79,7 @@
     setInterval(update, 60000);
     update();
 
-    // Orientation / layout detection
+    // Orientation detection
     const layout = document.getElementById('clock-layout');
     const ro = new ResizeObserver(entries => {
       const { width, height } = entries[0].contentRect;
@@ -95,3 +92,5 @@
 
 </body>
 </html>
+
+
