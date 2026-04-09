@@ -79,7 +79,7 @@
         } else {
           const h = hours % 12 || 12;
           const ampm = hours >= 12 ? 'PM' : 'AM';
-          timeEl.innerHTML = `${h}:${minutes} <sup class="ampm">${ampm}</sup>`;
+          timeEl.innerHTML = `${h}:${minutes}<sup class="ampm">${ampm}</sup>`;
         }
       }, 1000);
     }
