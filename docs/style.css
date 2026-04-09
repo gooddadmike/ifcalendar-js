@@ -110,16 +110,13 @@ body {
   font-size: clamp(4rem, 22vh, 18rem);
 }
 
-/* Big clock AM/PM - grey, lowercase, small superscript */
-.clock sup.ampm {
-  font-size: 0.28em;
-  font-weight: 400;
-  color: var(--muted);
-  vertical-align: top;
-  position: relative;
-  top: -0.35em;
-  margin-left: 4px;
-  text-transform: lowercase;
+/* Big clock AM/PM - uppercase, same color as time, slightly smaller */
+.clock .ampm {
+  font-size: 0.45em;
+  font-weight: 600;
+  color: inherit;           /* Same color as the time */
+  margin-left: 6px;
+  vertical-align: middle;
 }
 
 /* ── Calendars page (calendars.html) ─────────────────────────────────────── */
@@ -146,13 +143,13 @@ body {
   opacity: 0.85;
 }
 
-/* Small time AM/PM on calendars - grey, lowercase, NOT superscript */
+/* Small time AM/PM on calendars - uppercase, same color, slightly smaller */
 .current-time .ampm {
-  font-size: 0.85em;
-  color: var(--muted);
-  margin-left: 4px;
-  text-transform: lowercase;
-  font-weight: 400;
+  font-size: 0.82em;
+  font-weight: 500;
+  color: inherit;           /* Same color as the time */
+  margin-left: 5px;
+  vertical-align: middle;
 }
 
 .conversion-display {
