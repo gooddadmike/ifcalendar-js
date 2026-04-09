@@ -1,6 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Respects ?use24=true and passes mode back to desk-clock (fixed)
+  Fixed AM/PM display in top time link
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -53,7 +53,7 @@
 
     const currentLocale = EN;
 
-    // Read query parameter from URL
+    // Read query parameter
     const params = new URLSearchParams(window.location.search);
     const force24 = params.get('use24') === 'true';
 
@@ -74,14 +74,14 @@
         const minutes = String(now.getMinutes()).padStart(2, '0');
 
         if (force24) {
-          // Military / 24h time
+          // 24h military time
           const h = String(hours).padStart(2, '0');
           timeEl.textContent = `${h}:${minutes}`;
         } else {
-          // 12h with AM/PM (regional default)
+          // 12h with AM/PM - cleaner handling
           const h = hours % 12 || 12;
           const ampm = hours >= 12 ? 'PM' : 'AM';
-          timeEl.innerHTML = `${h}:${minutes}<sup class="ampm">${ampm}</sup>`;
+          timeEl.innerHTML = `${h}:${minutes} <sup class="ampm">${ampm}</sup>`;
         }
       }, 1000);
     }
@@ -221,6 +221,11 @@
       updateBackLink();
     }
 
+    function updateBackLink() {
+      const param = force24 ? "?use24=true" : "";
+      document.getElementById('time-link').href = "desk-clock.html" + param;
+    }
+
     // Navigation listeners
     document.getElementById('iPrev').addEventListener('click', () => {
       if (iView.month === 1) { iView.month = 13; iView.year--; }
@@ -266,7 +271,7 @@
       render();
     });
 
-    // Start the app
+    // Start
     init();
   </script>
 
