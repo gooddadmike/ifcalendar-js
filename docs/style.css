@@ -114,9 +114,39 @@ body {
 .clock .ampm {
   font-size: 0.45em;
   font-weight: 600;
-  color: inherit;           /* Same color as the time */
+  color: inherit;
   margin-left: 6px;
   vertical-align: middle;
+}
+
+/* Date labels - restored to original look from your screenshot */
+.date-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+.date-line .label {
+  font-weight: bold;
+  color: var(--accent);           /* Blue like "GREGORIAN" in screenshot */
+  font-size: clamp(0.75rem, 1.8vw, 1.1rem);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.date-line .value {
+  font-size: clamp(1.1rem, 3.5vw, 2.4rem);
+  color: var(--text);
+  font-weight: 400;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.date-line .value:hover {
+  opacity: 0.8;
 }
 
 /* ── Calendars page (calendars.html) ─────────────────────────────────────── */
@@ -143,11 +173,11 @@ body {
   opacity: 0.85;
 }
 
-/* Small time AM/PM on calendars - uppercase, same color, slightly smaller */
+/* Small time AM/PM on calendars */
 .current-time .ampm {
   font-size: 0.82em;
   font-weight: 500;
-  color: inherit;           /* Same color as the time */
+  color: inherit;
   margin-left: 5px;
   vertical-align: middle;
 }
