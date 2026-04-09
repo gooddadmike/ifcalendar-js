@@ -1,6 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Respects ?use24=true and passes mode back to desk-clock
+  Respects ?use24=true and passes mode back to desk-clock (fixed)
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -74,9 +74,11 @@
         const minutes = String(now.getMinutes()).padStart(2, '0');
 
         if (force24) {
+          // Military / 24h time
           const h = String(hours).padStart(2, '0');
           timeEl.textContent = `${h}:${minutes}`;
         } else {
+          // 12h with AM/PM (regional default)
           const h = hours % 12 || 12;
           const ampm = hours >= 12 ? 'PM' : 'AM';
           timeEl.innerHTML = `${h}:${minutes}<sup class="ampm">${ampm}</sup>`;
@@ -219,23 +221,52 @@
       updateBackLink();
     }
 
-    function updateBackLink() {
-      const param = force24 ? "?use24=true" : "";
-      document.getElementById('time-link').href = "desk-clock.html" + param;
-    }
+    // Navigation listeners
+    document.getElementById('iPrev').addEventListener('click', () => {
+      if (iView.month === 1) { iView.month = 13; iView.year--; }
+      else iView.month--;
+      render();
+    });
 
-    // Navigation listeners (unchanged)
-    document.getElementById('iPrev').addEventListener('click', () => { if (iView.month === 1) { iView.month = 13; iView.year--; } else iView.month--; render(); });
-    document.getElementById('iNext').addEventListener('click', () => { if (iView.month === 13) { iView.month = 1; iView.year++; } else iView.month++; render(); });
-    document.getElementById('gPrev').addEventListener('click', () => { if (gView.month === 0) { gView.month = 11; gView.year--; } else gView.month--; render(); });
-    document.getElementById('gNext').addEventListener('click', () => { if (gView.month === 11) { gView.month = 0; gView.year++; } else gView.month++; render(); });
+    document.getElementById('iNext').addEventListener('click', () => {
+      if (iView.month === 13) { iView.month = 1; iView.year++; }
+      else iView.month++;
+      render();
+    });
 
-    document.getElementById('iMonth').addEventListener('change', e => { iView.month = parseInt(e.target.value); render(); });
-    document.getElementById('iYear').addEventListener('change', e => { iView.year = parseInt(e.target.value); render(); });
-    document.getElementById('gMonth').addEventListener('change', e => { gView.month = parseInt(e.target.value); render(); });
-    document.getElementById('gYear').addEventListener('change', e => { gView.year = parseInt(e.target.value); render(); });
+    document.getElementById('gPrev').addEventListener('click', () => {
+      if (gView.month === 0) { gView.month = 11; gView.year--; }
+      else gView.month--;
+      render();
+    });
 
-    // Start
+    document.getElementById('gNext').addEventListener('click', () => {
+      if (gView.month === 11) { gView.month = 0; gView.year++; }
+      else gView.month++;
+      render();
+    });
+
+    document.getElementById('iMonth').addEventListener('change', e => {
+      iView.month = parseInt(e.target.value);
+      render();
+    });
+
+    document.getElementById('iYear').addEventListener('change', e => {
+      iView.year = parseInt(e.target.value);
+      render();
+    });
+
+    document.getElementById('gMonth').addEventListener('change', e => {
+      gView.month = parseInt(e.target.value);
+      render();
+    });
+
+    document.getElementById('gYear').addEventListener('change', e => {
+      gView.year = parseInt(e.target.value);
+      render();
+    });
+
+    // Start the app
     init();
   </script>
 
