@@ -1,5 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
+  12h default (regional) + trimmed Gregorian year + simple toggle
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -37,27 +38,35 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    let use24 = false;   // Default to 12h (AM/PM) — safe for en-US
+    // Start with 12h (AM/PM) as default - matches regional preference
+    let use24 = false;
 
     function updateDates() {
       const now = new Date();
       const rich = toIFC(now, 'object');
 
       document.getElementById('ifc-date').textContent = rich.short;
-      document.getElementById('greg-date').textContent = rich.gregorian.short;
+
+      // Trim the year from Gregorian short date
+      let gregShort = rich.gregorian.short;
+      gregShort = gregShort.replace(/\s*\d{4}\s*$/, '');
+      document.getElementById('greg-date').textContent = gregShort;
     }
 
     function updateClock() {
       const now = new Date();
-      let h = now.getHours();
-      const m = String(now.getMinutes()).padStart(2, '0');
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
 
       if (use24) {
-        document.getElementById('clock').textContent = `${String(h).padStart(2, '0')}:${m}`;
+        // 24-hour format
+        const h = String(hours).padStart(2, '0');
+        document.getElementById('clock').textContent = `${h}:${minutes}`;
       } else {
-        h = h % 12 || 12;
-        document.getElementById('clock').innerHTML = 
-          `${h}:${m}<sup class="ampm">${now.getHours() >= 12 ? 'PM' : 'AM'}</sup>`;
+        // 12-hour format with AM/PM
+        const h = hours % 12 || 12;
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        document.getElementById('clock').innerHTML = `${h}:${minutes}<sup class="ampm">${ampm}</sup>`;
       }
     }
 
@@ -66,7 +75,7 @@
       updateDates();
     }
 
-    // Tap the big clock to toggle 12h / 24h
+    // Tap the big clock to toggle 12h ↔ 24h
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       updateClock();
