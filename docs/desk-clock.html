@@ -1,6 +1,5 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Clean - System default time, year trimmed from Gregorian short date
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -38,34 +37,40 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
+    let use24 = false;   // Default to 12h (AM/PM) — safe for en-US
+
     function updateDates() {
       const now = new Date();
       const rich = toIFC(now, 'object');
 
       document.getElementById('ifc-date').textContent = rich.short;
-
-      // Trim the year from Gregorian short date
-      let gregShort = rich.gregorian.short;
-      gregShort = gregShort.replace(/\s*\d{4}\s*$/, '');
-      document.getElementById('greg-date').textContent = gregShort;
+      document.getElementById('greg-date').textContent = rich.gregorian.short;
     }
 
     function updateClock() {
       const now = new Date();
+      let h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, '0');
 
-      // Use Intl to show the system's default time format (12h or 24h)
-      const formatter = new Intl.DateTimeFormat(undefined, {
-        hour: 'numeric',
-        minute: '2-digit'
-      });
-
-      document.getElementById('clock').textContent = formatter.format(now);
+      if (use24) {
+        document.getElementById('clock').textContent = `${String(h).padStart(2, '0')}:${m}`;
+      } else {
+        h = h % 12 || 12;
+        document.getElementById('clock').innerHTML = 
+          `${h}:${m}<sup class="ampm">${now.getHours() >= 12 ? 'PM' : 'AM'}</sup>`;
+      }
     }
 
     function update() {
       updateClock();
       updateDates();
     }
+
+    // Tap the big clock to toggle 12h / 24h
+    document.getElementById('clock').addEventListener('click', () => {
+      use24 = !use24;
+      updateClock();
+    });
 
     setInterval(update, 60000);
     update();
