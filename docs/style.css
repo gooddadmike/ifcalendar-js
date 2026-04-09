@@ -158,23 +158,23 @@ body {
 }
 
 .current-time {
-  font-size: 1.1rem;           /* Matches label size better */
-  font-weight: 500;            /* Lighter weight like labels */
-  color: var(--text);
-  text-decoration: none;       /* No underline by default */
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--accent);           /* Same color as IFC / Gregorian labels */
+  text-decoration: none;
   white-space: nowrap;
-  transition: color 0.2s;
+  transition: opacity 0.2s;
 }
 
 .current-time:hover {
-  text-decoration: underline;  /* Underline only on hover */
-  color: var(--accent);
+  text-decoration: underline;
+  opacity: 0.85;
 }
 
 .ampm {
   font-size: 0.75em;
   vertical-align: super;
-  margin-left: 3px;
+  margin-left: 2px;
   font-weight: normal;
   color: var(--muted);
 }
@@ -383,7 +383,7 @@ body {
   }
 }
 
-/* ── Info page (if you still have index.html) ───────────────────────────── */
+/* ── Info page ───────────────────────────────────────────────────────────── */
 .info-page {
   max-width: 860px;
   margin: 0 auto;
