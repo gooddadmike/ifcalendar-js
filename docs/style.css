@@ -9,6 +9,7 @@
   --surface:       #21262d;
   --nav-clearance: 4rem;
 }
+
 @media (prefers-color-scheme: light) {
   :root {
     --bg:      #ffffff;
@@ -55,7 +56,7 @@ body {
   height: 100%;
 }
 
-/* Date panels — base */
+/* Date panels */
 .clock-date {
   flex: 1;
   display: flex;
@@ -71,13 +72,10 @@ body {
   justify-content: center;
 }
 
-/* Portrait: tighter flex ratios pull dates closer to clock */
-.clock-layout.layout-portrait .clock-date {
-  flex: 0.6;
-}
-.clock-layout.layout-portrait .clock-face {
-  flex: 1;
-}
+/* Portrait adjustments */
+.clock-layout.layout-portrait .clock-date { flex: 0.6; }
+.clock-layout.layout-portrait .clock-face { flex: 1; }
+
 .clock-layout.layout-portrait .clock-date:first-child {
   align-items: flex-end;
   padding-bottom: 0.25rem;
@@ -87,7 +85,7 @@ body {
   padding-top: 0.25rem;
 }
 
-/* Landscape: dates pushed inward toward clock */
+/* Landscape adjustments */
 .clock-layout.layout-landscape .clock-date:first-child {
   justify-content: flex-end;
   padding-right: 1.5rem;
@@ -107,9 +105,11 @@ body {
   cursor: pointer;
   user-select: none;
 }
+
 .clock-layout.layout-landscape .clock {
   font-size: clamp(4rem, 22vh, 18rem);
 }
+
 .clock sup.ampm {
   font-size: 0.25em;
   font-weight: 400;
@@ -118,6 +118,7 @@ body {
   color: var(--muted);
 }
 
+/* Date labels */
 .date-line {
   display: flex;
   flex-direction: column;
@@ -125,6 +126,7 @@ body {
   gap: 0.2rem;
   text-align: center;
 }
+
 .date-line .label {
   font-weight: bold;
   color: var(--accent);
@@ -132,6 +134,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+
 .date-line .value {
   font-size: clamp(0.9rem, 2.5vw, 2rem);
   color: var(--text);
@@ -139,7 +142,10 @@ body {
   cursor: pointer;
   transition: opacity 0.15s;
 }
-.date-line .value:hover { opacity: 0.7; }
+
+.date-line .value:hover {
+  opacity: 0.7;
+}
 
 /* ── Calendars page (calendars.html) ─────────────────────────────────────── */
 .top-bar {
@@ -152,14 +158,30 @@ body {
 }
 
 .current-time {
-  font-size: 1.45rem;
-  font-weight: 600;
+  font-size: 1.1rem;           /* Matches label size better */
+  font-weight: 500;            /* Lighter weight like labels */
+  color: var(--text);
+  text-decoration: none;       /* No underline by default */
   white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.current-time:hover {
+  text-decoration: underline;  /* Underline only on hover */
+  color: var(--accent);
+}
+
+.ampm {
+  font-size: 0.75em;
+  vertical-align: super;
+  margin-left: 3px;
+  font-weight: normal;
+  color: var(--muted);
 }
 
 .conversion-display {
   font-size: 1.1rem;
-  color: #555;
+  color: var(--muted);
   text-align: center;
 }
 
@@ -192,11 +214,10 @@ body {
   overflow: hidden;
 }
 
-/* Separator and border radius — landscape */
+/* Border radius */
 .calendars.layout-landscape .cal:first-child { border-radius: 12px 0 0 12px; }
 .calendars.layout-landscape .cal + .cal      { border-left: 1px solid var(--border); border-radius: 0 12px 12px 0; }
 
-/* Separator and border radius — portrait */
 .calendars.layout-portrait .cal:first-child  { border-radius: 12px 12px 0 0; }
 .calendars.layout-portrait .cal + .cal       { border-top: 1px solid var(--border); border-radius: 0 0 12px 12px; }
 
@@ -217,6 +238,7 @@ body {
   margin-bottom: 0.5rem;
   flex-shrink: 0;
 }
+
 .cal-nav button {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -229,7 +251,12 @@ body {
   flex-shrink: 0;
   transition: border-color 0.15s, color 0.15s;
 }
-.cal-nav button:hover         { border-color: var(--accent); color: var(--accent); }
+
+.cal-nav button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .cal-nav select,
 .cal-nav input[type="number"] {
   background: var(--surface);
@@ -239,12 +266,14 @@ body {
   padding: 0.15rem 0.3rem;
   font-size: 0.8rem;
 }
-.cal-nav select               { flex: 1; }
+
+.cal-nav select { flex: 1; }
 .cal-nav input[type="number"] {
   width: 58px;
   text-align: center;
   -moz-appearance: textfield;
 }
+
 .cal-nav input[type="number"]::-webkit-inner-spin-button,
 .cal-nav input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -257,6 +286,7 @@ body {
   margin-bottom: 0.15rem;
   flex-shrink: 0;
 }
+
 .weekdays span {
   text-align: center;
   font-size: 0.6rem;
@@ -289,9 +319,17 @@ body {
   user-select: none;
   transition: background 0.1s, border-color 0.1s;
 }
-.day:hover                 { background: var(--surface); border-color: var(--border); }
-.day.empty                 { cursor: default; pointer-events: none; }
-.day.selected              { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: bold; }
+
+.day:hover { background: var(--surface); border-color: var(--border); }
+.day.empty { cursor: default; pointer-events: none; }
+
+.day.selected {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: bold;
+}
+
 .day.today::after {
   content: '';
   position: absolute;
@@ -303,6 +341,7 @@ body {
   border-radius: 50%;
   background: var(--accent);
 }
+
 .day.today.selected::after { background: #fff; }
 
 .day.special {
@@ -315,8 +354,13 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
 }
-.day.special:hover         { border-color: var(--accent); }
-.day.special.selected      { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.day.special:hover { border-color: var(--accent); }
+.day.special.selected {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
 
 /* ── Small screen adjustments ────────────────────────────────────────────── */
 @media (max-height: 700px) {
@@ -339,27 +383,31 @@ body {
   }
 }
 
-/* ── Info page (index.html) ──────────────────────────────────────────────── */
+/* ── Info page (if you still have index.html) ───────────────────────────── */
 .info-page {
   max-width: 860px;
   margin: 0 auto;
   padding: 1rem 1rem var(--nav-clearance);
 }
+
 #readme {
   background: var(--card);
   padding: 2rem;
   border-radius: 12px;
   border: 1px solid var(--border);
 }
+
 #readme h1, #readme h2, #readme h3 { color: var(--accent); }
-#readme a                           { color: var(--accent); text-decoration: none; }
-#readme a:hover                     { text-decoration: underline; }
+#readme a { color: var(--accent); text-decoration: none; }
+#readme a:hover { text-decoration: underline; }
+
 #readme code {
   background: var(--bg);
   padding: 0.2em 0.4em;
   border-radius: 4px;
   font-size: 0.9em;
 }
+
 #readme pre {
   background: var(--bg);
   padding: 1rem;
