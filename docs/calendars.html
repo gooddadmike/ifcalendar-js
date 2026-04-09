@@ -1,5 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
+  Clean version - Time is a link back to clock, no toggle
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +15,7 @@
 
   <div class="calendars-page">
     <div class="top-bar">
-      <!-- Pure link - any click goes back to clock -->
+      <!-- Time is a simple link back to the clock -->
       <a href="desk-clock.html" id="time-link" class="current-time">00:00</a>
       <span class="conversion-display" id="conversion">Click any date</span>
     </div>
@@ -49,6 +50,7 @@
   </div>
 
   <script type="module">
+    // Direct local import - simple and reliable
     import { toIFC, toGregorian, isLeap, EN } from "./index.js";
 
     const currentLocale = EN;
@@ -81,7 +83,8 @@
         const now = new Date();
         let h = now.getHours();
         const m = String(now.getMinutes()).padStart(2, '0');
-        timeEl.textContent = `${h}:${m}`;   // Always 24h on calendars (simple)
+        // Show system time in 24h format (simple, no toggle)
+        timeEl.textContent = `${String(h).padStart(2, '0')}:${m}`;
       }, 1000);
     }
 
@@ -204,7 +207,7 @@
       render();
     }
 
-    // Nav handlers (unchanged)
+    // Nav handlers
     document.getElementById('iPrev').addEventListener('click', () => {
       if (iView.month === 1) { iView.month = 13; iView.year--; }
       else iView.month--;
