@@ -110,43 +110,15 @@ body {
   font-size: clamp(4rem, 22vh, 18rem);
 }
 
+/* Big clock AM/PM - top aligned + accent color */
 .clock sup.ampm {
   font-size: 0.32em;
-  font-weight: 400;
-  vertical-align: top;           /* Changed from super to top for better alignment */
+  font-weight: 500;
+  color: var(--accent);           /* Same color as labels */
+  vertical-align: top;
   position: relative;
-  top: -0.35em;                  /* Fine-tune vertical position */
-  color: var(--muted);
-  margin-left: 2px;
-}
-
-/* Date labels */
-.date-line {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  text-align: center;
-}
-
-.date-line .label {
-  font-weight: bold;
-  color: var(--accent);
-  font-size: clamp(0.6rem, 1.2vw, 1rem);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.date-line .value {
-  font-size: clamp(0.9rem, 2.5vw, 2rem);
-  color: var(--text);
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-
-.date-line .value:hover {
-  opacity: 0.7;
+  top: -0.38em;
+  margin-left: 4px;
 }
 
 /* ── Calendars page (calendars.html) ─────────────────────────────────────── */
@@ -173,14 +145,15 @@ body {
   opacity: 0.85;
 }
 
+/* Small time AM/PM on calendars - top aligned + accent color */
 .current-time sup.ampm {
-  font-size: 0.75em;
+  font-size: 0.72em;
+  font-weight: 500;
+  color: var(--accent);
   vertical-align: top;
   position: relative;
-  top: -0.25em;                   /* Adjusted for better top alignment */
-  margin-left: 2px;
-  color: var(--muted);
-  font-weight: normal;
+  top: -0.28em;
+  margin-left: 3px;
 }
 
 .conversion-display {
