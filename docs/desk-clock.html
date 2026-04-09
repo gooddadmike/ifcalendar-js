@@ -1,6 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  12h default (regional) + trimmed Gregorian year + simple toggle
+  12h default + trimmed Gregorian year + toggle sends ?use24=true
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -38,8 +38,7 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    // Start with 12h (AM/PM) as default - matches regional preference
-    let use24 = false;
+    let use24 = false;   // Default to 12h (AM/PM)
 
     function updateDates() {
       const now = new Date();
@@ -47,10 +46,15 @@
 
       document.getElementById('ifc-date').textContent = rich.short;
 
-      // Trim the year from Gregorian short date
+      // Trim year from Gregorian short date
       let gregShort = rich.gregorian.short;
       gregShort = gregShort.replace(/\s*\d{4}\s*$/, '');
       document.getElementById('greg-date').textContent = gregShort;
+
+      // Update links with current toggle state
+      const param = use24 ? "?use24=true" : "";
+      document.getElementById('ifc-date').href = "calendars.html" + param;
+      document.getElementById('greg-date').href = "calendars.html" + param;
     }
 
     function updateClock() {
@@ -59,11 +63,11 @@
       const minutes = String(now.getMinutes()).padStart(2, '0');
 
       if (use24) {
-        // 24-hour format
+        // 24h military time
         const h = String(hours).padStart(2, '0');
         document.getElementById('clock').textContent = `${h}:${minutes}`;
       } else {
-        // 12-hour format with AM/PM
+        // 12h with AM/PM
         const h = hours % 12 || 12;
         const ampm = hours >= 12 ? 'PM' : 'AM';
         document.getElementById('clock').innerHTML = `${h}:${minutes}<sup class="ampm">${ampm}</sup>`;
@@ -75,10 +79,11 @@
       updateDates();
     }
 
-    // Tap the big clock to toggle 12h ↔ 24h
+    // Tap big clock to toggle + update links
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       updateClock();
+      updateDates();
     });
 
     setInterval(update, 60000);

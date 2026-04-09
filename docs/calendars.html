@@ -1,5 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
+  Respects ?use24=true from desk-clock, basic time formatting
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +15,6 @@
 
   <div class="calendars-page">
     <div class="top-bar">
-      <!-- Time shows system default, clickable link back to clock -->
       <a href="desk-clock.html" id="time-link" class="current-time">00:00</a>
       <span class="conversion-display" id="conversion">Click any date</span>
     </div>
@@ -53,6 +53,10 @@
 
     const currentLocale = EN;
 
+    // Read query parameter
+    const params = new URLSearchParams(window.location.search);
+    const force24 = params.get('use24') === 'true';
+
     let selISO = null;
     let iView = {};
     let gView = {};
@@ -62,30 +66,23 @@
       return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     }
 
-    function init() {
-      const todayGreg = getTodayISO();
-      const rich = toIFC(todayGreg, 'object');
-      selISO = rich.ifcISO;
-      iView = { year: rich.year, month: rich.month };
-      gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
-
-      buildDropdowns();
-      buildWeekdays();
-      render();
-      startLiveClock();
-    }
-
     function startLiveClock() {
       const timeEl = document.getElementById('time-link');
       setInterval(() => {
         const now = new Date();
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
 
-        // Show the system's actual default time format (12h or 24h)
-        const formatter = new Intl.DateTimeFormat(undefined, {
-          hour: 'numeric',
-          minute: '2-digit'
-        });
-        timeEl.textContent = formatter.format(now);
+        if (force24) {
+          // Military / 24h time
+          const h = String(hours).padStart(2, '0');
+          timeEl.textContent = `${h}:${minutes}`;
+        } else {
+          // 12h with AM/PM (regional default)
+          const h = hours % 12 || 12;
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          timeEl.innerHTML = `${h}:${minutes}<sup class="ampm">${ampm}</sup>`;
+        }
       }, 1000);
     }
 
@@ -100,14 +97,13 @@
     }
 
     function formatConversion() {
-      if (!toIFC || !selISO) return "Click any date";
+      if (!selISO) return "Click any date";
       const rich = toIFC(toGregorian(selISO), 'object');
       const g = rich.gregorian;
       return `${rich.short}  ↔  ${g.short}`;
     }
 
     function buildIfcGrid() {
-      if (!toIFC) return;
       const { year, month } = iView;
       const grid = document.getElementById('iDays');
       grid.innerHTML = '';
@@ -131,7 +127,6 @@
         el.addEventListener('click', () => selectDate(isoStr));
         grid.appendChild(el);
       }
-
       setGridRows(grid);
     }
 
@@ -192,7 +187,6 @@
     }
 
     function render() {
-      if (!toIFC) return;
       syncControls();
       buildIfcGrid();
       buildGregGrid();
@@ -208,7 +202,20 @@
       render();
     }
 
-    // Nav handlers
+    function init() {
+      const todayGreg = getTodayISO();
+      const rich = toIFC(todayGreg, 'object');
+      selISO = rich.ifcISO;
+      iView = { year: rich.year, month: rich.month };
+      gView = { year: rich.gregorian.year, month: rich.gregorian.month - 1 };
+
+      buildDropdowns();
+      buildWeekdays();
+      render();
+      startLiveClock();
+    }
+
+    // Navigation listeners
     document.getElementById('iPrev').addEventListener('click', () => {
       if (iView.month === 1) { iView.month = 13; iView.year--; }
       else iView.month--;
@@ -253,7 +260,7 @@
       render();
     });
 
-    // Start
+    // Start the app
     init();
   </script>
 
