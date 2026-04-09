@@ -1,6 +1,6 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  12h default + trimmed Gregorian year + toggle sends ?use24=true
+  12h default + toggle + preserves mode when navigating to/from calendars
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -38,7 +38,14 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    let use24 = false;   // Default to 12h (AM/PM)
+    // Read incoming mode from URL (so returning from calendars keeps the mode)
+    const params = new URLSearchParams(window.location.search);
+    let use24 = params.get('use24') === 'true';
+
+    // If no param, default to 12h (regional preference)
+    if (!params.has('use24')) {
+      use24 = false;
+    }
 
     function updateDates() {
       const now = new Date();
@@ -51,7 +58,7 @@
       gregShort = gregShort.replace(/\s*\d{4}\s*$/, '');
       document.getElementById('greg-date').textContent = gregShort;
 
-      // Update links with current toggle state
+      // Update links with current mode
       const param = use24 ? "?use24=true" : "";
       document.getElementById('ifc-date').href = "calendars.html" + param;
       document.getElementById('greg-date').href = "calendars.html" + param;
@@ -63,11 +70,9 @@
       const minutes = String(now.getMinutes()).padStart(2, '0');
 
       if (use24) {
-        // 24h military time
         const h = String(hours).padStart(2, '0');
         document.getElementById('clock').textContent = `${h}:${minutes}`;
       } else {
-        // 12h with AM/PM
         const h = hours % 12 || 12;
         const ampm = hours >= 12 ? 'PM' : 'AM';
         document.getElementById('clock').innerHTML = `${h}:${minutes}<sup class="ampm">${ampm}</sup>`;
@@ -79,7 +84,7 @@
       updateDates();
     }
 
-    // Tap big clock to toggle + update links
+    // Tap big clock to toggle mode and refresh links
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       updateClock();
