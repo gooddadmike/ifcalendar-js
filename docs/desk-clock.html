@@ -1,13 +1,17 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  12h default + toggle + preserves mode when navigating to/from calendars
+
+  2026-04-22 17:52 - Precise real-time sync - always calculates to next full minute
+  2026-04-16        - Simplified labels for normies: "Fixed" and "Calendar"
+  2026-04-15        - Added bidirectional ?use24=true param support
+  2026-04-14        - Initial clean version with tap-to-toggle
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>IFC Desk Clock</title>
+  <title>Fixed / Calendar</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%95%92%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -17,7 +21,7 @@
     <div class="clock-layout" id="clock-layout">
       <div class="clock-date">
         <div class="date-line">
-          <span class="label">IFC</span>
+          <span class="label">Fixed</span>
           <a class="value" id="ifc-date" href="calendars.html">Loading…</a>
         </div>
       </div>
@@ -28,7 +32,7 @@
 
       <div class="clock-date">
         <div class="date-line">
-          <span class="label">Gregorian</span>
+          <span class="label">Calendar</span>
           <a class="value" id="greg-date" href="calendars.html">Loading…</a>
         </div>
       </div>
@@ -38,14 +42,7 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    // Read incoming mode from URL (so returning from calendars keeps the mode)
-    const params = new URLSearchParams(window.location.search);
-    let use24 = params.get('use24') === 'true';
-
-    // If no param, default to 12h (regional preference)
-    if (!params.has('use24')) {
-      use24 = false;
-    }
+    let use24 = false;
 
     function updateDates() {
       const now = new Date();
@@ -53,12 +50,10 @@
 
       document.getElementById('ifc-date').textContent = rich.short;
 
-      // Trim year from Gregorian short date
       let gregShort = rich.gregorian.short;
       gregShort = gregShort.replace(/\s*\d{4}\s*$/, '');
       document.getElementById('greg-date').textContent = gregShort;
 
-      // Update links with current mode
       const param = use24 ? "?use24=true" : "";
       document.getElementById('ifc-date').href = "calendars.html" + param;
       document.getElementById('greg-date').href = "calendars.html" + param;
@@ -82,25 +77,37 @@
     function update() {
       updateClock();
       updateDates();
+      scheduleNextUpdate();
     }
 
-    // Tap big clock to toggle mode and refresh links
+    function scheduleNextUpdate() {
+      const now = new Date();
+      const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+      setTimeout(update, msUntilNextMinute);
+    }
+
+    // Tap to toggle 12h / 24h
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       updateClock();
       updateDates();
     });
 
-    setInterval(update, 60000);
+    // Start the precisely synced clock
     update();
 
-    // Orientation detection
+    // Orientation adjustment for small phones
     const layout = document.getElementById('clock-layout');
-    const ro = new ResizeObserver(entries => {
-      const { width, height } = entries[0].contentRect;
-      const portrait = height > width;
-      layout.classList.toggle('layout-portrait', portrait);
-      layout.classList.toggle('layout-landscape', !portrait);
+    const ro = new ResizeObserver(() => {
+      const rect = layout.getBoundingClientRect();
+      const isNarrowLandscape = rect.width > rect.height && rect.width < 620;
+
+      if (isNarrowLandscape) {
+        layout.style.gap = '12px';
+        document.querySelectorAll('.clock-date').forEach(el => el.style.padding = '0 10px');
+      } else {
+        layout.style.gap = '0';
+      }
     });
     ro.observe(document.body);
   </script>
