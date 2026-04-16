@@ -96,12 +96,12 @@
 
     // Minimal orientation support
     const layout = document.getElementById('clock-layout');
-        const ro = new ResizeObserver(entries => {
+    const ro = new ResizeObserver(entries => {
       const { width, height } = entries[0].contentRect;
       const portrait = height > width;
       layout.classList.toggle('layout-portrait', portrait);
       layout.classList.toggle('layout-landscape', !portrait);
-
+    });
     ro.observe(document.body);
   </script>
 
