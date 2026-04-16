@@ -1,10 +1,9 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
 
-  2026-04-22 17:52 - Precise real-time sync - always calculates to next full minute
-  2026-04-16        - Simplified labels for normies: "Fixed" and "Calendar"
-  2026-04-15        - Added bidirectional ?use24=true param support
-  2026-04-14        - Initial clean version with tap-to-toggle
+  2026-04-22 18:25 - Restored clean layout + precise real-time sync (always calculates to next full minute)
+  2026-04-22        - Simplified labels for normies: "Fixed" and "Calendar"
+  2026-04-16        - Added bidirectional ?use24=true param support
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -96,15 +95,12 @@
     // Start the precisely synced clock
     update();
 
-    // Orientation adjustment for small phones
+    // Minimal orientation support (only for extreme narrow landscape)
     const layout = document.getElementById('clock-layout');
     const ro = new ResizeObserver(() => {
       const rect = layout.getBoundingClientRect();
-      const isNarrowLandscape = rect.width > rect.height && rect.width < 620;
-
-      if (isNarrowLandscape) {
-        layout.style.gap = '12px';
-        document.querySelectorAll('.clock-date').forEach(el => el.style.padding = '0 10px');
+      if (rect.width > rect.height && rect.width < 500) {
+        layout.style.gap = '8px';
       } else {
         layout.style.gap = '0';
       }
