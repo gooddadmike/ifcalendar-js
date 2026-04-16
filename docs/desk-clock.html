@@ -1,16 +1,17 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
 
-  2026-04-22 18:40 - Restored original clean label + date layout from reference image
+  2026-04-22 18:55 - Restored working layout + portrait/landscape classes
   2026-04-22        - Precise real-time sync (always calculates to next full minute)
   2026-04-22        - Simplified labels: "Fixed" and "Calendar"
+  2026-04-16        - Added bidirectional ?use24=true param support
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Fixed / Calendar</title>
+  <title>Clock</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%95%92%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -41,7 +42,8 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
-    let use24 = false;
+    const params = new URLSearchParams(window.location.search);
+    let use24 = params.get('use24') === 'true';
 
     function updateDates() {
       const now = new Date();
@@ -85,6 +87,7 @@
       setTimeout(update, msUntilNextMinute);
     }
 
+    // Tap to toggle 12h / 24h
     document.getElementById('clock').addEventListener('click', () => {
       use24 = !use24;
       updateClock();
@@ -94,7 +97,7 @@
     // Start the precisely synced clock
     update();
 
-    // Minimal orientation support
+    // Layout classes for portrait vs landscape
     const layout = document.getElementById('clock-layout');
     const ro = new ResizeObserver(entries => {
       const { width, height } = entries[0].contentRect;
