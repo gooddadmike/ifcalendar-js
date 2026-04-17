@@ -1,6 +1,11 @@
 <!--
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
-  Time styled like labels + clean link underline on hover only
+
+  Changelog:
+  • 2026-04-23  Added precise minute synchronization to top clock on calendars page
+  • 2026-04-18  Simplified labels: "International Fixed" → "Fixed", "Gregorian" → "Calendar"
+  • 2026-04-17  AM/PM now uppercase, same color as time, normal spacing (no superscript)
+  • 2026-04-15  Initial public demo release with rich IFC object support
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -53,7 +58,6 @@
 
     const currentLocale = EN;
 
-    // Read query parameter
     const params = new URLSearchParams(window.location.search);
     const force24 = params.get('use24') === 'true';
 
@@ -66,9 +70,21 @@
       return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     }
 
+    function updateDates() {
+      const now = new Date();
+      const rich = toIFC(now, 'object');
+
+      document.getElementById('ifc-date').textContent = rich.short;
+
+      let gregShort = rich.gregorian.short;
+      gregShort = gregShort.replace(/\s*\d{4}\s*$/, '');
+      document.getElementById('greg-date').textContent = gregShort;
+    }
+
     function startLiveClock() {
       const timeEl = document.getElementById('time-link');
-      setInterval(() => {
+
+      function updateTime() {
         const now = new Date();
         let hours = now.getHours();
         const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -81,7 +97,13 @@
           const ampm = hours >= 12 ? 'PM' : 'AM';
           timeEl.innerHTML = `${h}:${minutes}<sup class="ampm">${ampm}</sup>`;
         }
-      }, 1000);
+
+        // Schedule next update exactly on the next minute
+        const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+        setTimeout(updateTime, msUntilNextMinute);
+      }
+
+      updateTime();   // start immediately
     }
 
     function updateBackLink() {
@@ -100,7 +122,7 @@
     }
 
     function formatConversion() {
-      if (!selISO) return "Click any date";
+      if (!selISO) return "Fixed ↔ Calendar";
       const rich = toIFC(toGregorian(selISO), 'object');
       const g = rich.gregorian;
       return `${rich.short}  ↔  ${g.short}`;
@@ -264,7 +286,7 @@
       render();
     });
 
-    // Start
+    // Start everything
     init();
   </script>
 
