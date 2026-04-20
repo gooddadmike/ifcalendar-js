@@ -42,6 +42,15 @@
   <script type="module">
     import { toIFC } from "./index.js";
 
+    const userLang = navigator.language.split('-')[0].toLowerCase();
+
+    const locales = {
+      es: ES,
+      // add more as needed
+    };
+
+    const currentLocale = locales[userLang] || EN;
+    
     const params = new URLSearchParams(window.location.search);
     let use24 = params.get('use24') === 'true';
 

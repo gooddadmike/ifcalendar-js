@@ -2,17 +2,21 @@
   ifcalendar-js — MIT — https://github.com/gooddadmike/ifcalendar-js
 
   Changelog:
-  • 2026-04-23  Added precise minute synchronization to top clock on calendars page
+  • 2026-04-23  Added precise minute synchronization to top clock
   • 2026-04-18  Simplified labels: "International Fixed" → "Fixed", "Gregorian" → "Calendar"
-  • 2026-04-17  AM/PM now uppercase, same color as time, normal spacing (no superscript)
+  • 2026-04-17  AM/PM now uppercase, same color as time, normal spacing
+  • 2026-04-16  Improved landscape layout for small phones
   • 2026-04-15  Initial public demo release with rich IFC object support
+
+  Current IFC date: 2026-04-23 (Mon)
+  Current Gregorian date: 2026-04-18
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Fixed Comparison Calendars</title>
+  <title>IFC Calendars</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%93%85%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -54,9 +58,20 @@
   </div>
 
   <script type="module">
-    import { toIFC, toGregorian, isLeap, EN } from "./index.js";
+    import { toIFC, toGregorian, isLeap } from "./index.js";
+    import EN from "./locales/en.js";
 
-    const currentLocale = EN;
+    // Auto-detect browser language (small map - easy to extend)
+    const userLang = navigator.language.split('-')[0].toLowerCase();
+
+    const locales = {
+      en: EN,
+      // Add more languages here later:
+      // fr: FR,
+      // de: DE,
+    };
+
+    const currentLocale = locales[userLang] || EN;
 
     const params = new URLSearchParams(window.location.search);
     const force24 = params.get('use24') === 'true';
@@ -68,17 +83,6 @@
     function getTodayISO() {
       const now = new Date();
       return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    }
-
-    function updateDates() {
-      const now = new Date();
-      const rich = toIFC(now, 'object');
-
-      document.getElementById('ifc-date').textContent = rich.short;
-
-      let gregShort = rich.gregorian.short;
-      gregShort = gregShort.replace(/\s*\d{4}\s*$/, '');
-      document.getElementById('greg-date').textContent = gregShort;
     }
 
     function startLiveClock() {
@@ -98,12 +102,12 @@
           timeEl.innerHTML = `${h}:${minutes}<sup class="ampm">${ampm}</sup>`;
         }
 
-        // Schedule next update exactly on the next minute
+        // Precise sync to next full minute
         const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
         setTimeout(updateTime, msUntilNextMinute);
       }
 
-      updateTime();   // start immediately
+      updateTime();
     }
 
     function updateBackLink() {
@@ -286,7 +290,7 @@
       render();
     });
 
-    // Start everything
+    // Start
     init();
   </script>
 
