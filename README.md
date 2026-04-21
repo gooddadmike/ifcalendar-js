@@ -6,9 +6,14 @@ A lightweight JavaScript library for converting dates between the normal calenda
 
 ## What is the International Fixed Calendar? 🗓️
 
-Imagine if every month started on the same day of the week. Imagine knowing
-the weekday of any date instantly, without checking. No uneven month lengths,
-no holidays that drift around the calendar year after year.
+In the fixed calendar, every month begins on a Sunday and ends on a Saturday. This structure remains constant for all 13 months, every year.
+
+| Sun | Mon | Tue | Wed | Thu | Fri | Sat |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+| 8 | 9 | 10 | 11 | 12 | 13 | 14 |
+| 15 | 16 | 17 | 18 | 19 | 20 | 21 |
+| 22 | 23 | 24 | 25 | 26 | 27 | 28 |
 
 Also ..
 
@@ -17,18 +22,7 @@ Also ..
 ... there is an extra month of summer right in the middle.
 
 The normal calendar has months of different lengths so every month starts
-on a different weekday and a month is "about 30 days". The fixed calendar solves this
-with 13 months of exactly 28 days each. Every month starts on Sunday. Every
-month ends on Saturday.
-
-** Typical Month **
-
-| Sun | Mon | Tue | Wed | Thu | Fri | Sat |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-| 8 | 9 | 10 | 11 | 12 | 13 | 14 |
-| 15 | 16 | 17 | 18 | 19 | 20 | 21 |
-| 22 | 23 | 24 | 25 | 26 | 27 | 28 |
+on a different weekday and a month is "about 30 days". In the fixed calendar every month is exactly 28 days. If you know the day of the month, you know the weekday instantly. 
 
 The IFC is also known as the **Cotsworth Calendar** and the **Eastman Calendar**
 — named after Moses Cotsworth who proposed it in 1902 and George Eastman of
@@ -53,7 +47,7 @@ have no weekday name and do not belong to any week.
 
 ## Live Demos 🚀
 
-Both demos are built entirely on this package via CDN. View source to see
+Both demos are built entirely on the package code. View source to see
 the reference implementation.
 
 ### 🕐 IFC Desk Clock
@@ -62,7 +56,7 @@ the reference implementation.
 [View Source →](https://github.com/gooddadmike/ifcalendar-js/blob/main/docs/desk-clock.html)
 
 Keep it open on a spare monitor or tablet. Glancing at both dates together
-is how the IFC date starts to feel real rather than abstract. The same way
+is how the fixed-calendar date starts to feel real rather than abstract. The same way
 setting a watch to military time gradually builds the mental mapping until
 it becomes second nature.
 
@@ -74,15 +68,6 @@ it becomes second nature.
 An interactive dual calendar. Find any date on either side and the equivalent
 date in the other calendar is shown instantly. Browse by month and year
 independently on each side.
-
-### 📱 Kiosk Mode
-
-Add `?kiosk=true` to either URL to hide the navigation bar for a cleaner
-display experience:
-```
-https://gooddadmike.github.io/ifcalendar-js/desk-clock.html?kiosk=true
-https://gooddadmike.github.io/ifcalendar-js/calendars.html?kiosk=true
-```
 
 Pin it as a full-screen app with no browser chrome:
 
