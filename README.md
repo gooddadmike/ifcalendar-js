@@ -1,6 +1,6 @@
 # ifcalendar-js 📅
 
-A lightweight JavaScript library for converting dates between the normal calendar (A.K.A Gregorian) and the fixed calendar (A.K.A. International Fixed Calendar or IFC).
+A lightweighti, zero-dependency JavaScript library for converting dates between the normal (Gregorian) calendar and the International Fixed Calendar (IFC or just fixed calendar).
 
 ---
 
@@ -15,41 +15,27 @@ In the fixed calendar, every month begins on a Sunday and ends on a Saturday. Th
 | 15 | 16 | 17 | 18 | 19 | 20 | 21 |
 | 22 | 23 | 24 | 25 | 26 | 27 | 28 |
 
-Also ..
-
 &nbsp;&nbsp;&nbsp;&nbsp;**... June → ☀️ Sol → July ...**
 
-... there is an extra month of summer right in the middle.
+By adding a 13th month called **Sol** in mid-summer, every month becomes exactly 28 days long. This eliminates the "30 or 31 days" guesswork. If you know the date, you know the weekday instantly. 
 
-The normal calendar has months of different lengths so every month starts
-on a different weekday and a month is "about 30 days". In the fixed calendar every month is exactly 28 days. If you know the day of the month, you know the weekday instantly. 
-
-The IFC is also known as the **Cotsworth Calendar** and the **Eastman Calendar**
-— named after Moses Cotsworth who proposed it in 1902 and George Eastman of
-Kodak who famously adopted it for his company's internal calendar from 1928
-to 1989.
+The IFC is also known as the **Cotsworth Calendar** and the **Eastman Calendar**. It is named after Moses Cotsworth who proposed it in 1902 and George Eastman of the Kodak company who famously adopted it for his company's internal calendar from 1928 to 1989.
 
 ### Bonus Days 🎁
 
-The IFC has two special days called intercalary days. Intercalary means
-inserted between — these days exist outside the normal week structure. They
-have no weekday name and do not belong to any week.
+The IFC has two special days called intercalary days. Intercalary means "inserted between". These days exist outside the normal week structure. They have no weekday name and do not belong to any week.
 
-- 🎆 **Year Day** (Dec 29) — the last day of every year. It sits after
-  December 28th, outside the week, before the new year begins. Think of it
-  as New Years Eve given its own special status outside the normal calendar.
+- 🎆 **Year Day** (Dec 29) — the last day of every year. 
+> It sits after December 28th, outside the week, before the new year begins. Think of it as New Years Eve given its own special status outside the normal calendar.
 
 - ☀️ **Leap Day** (Jun 29) — appears only in leap years, after June 28th.
-  Like Year Day it has no weekday. It is a midsummer holiday that shows up
-  once every four years, completely outside the flow of the week.
+> Like Year Day it has no weekday. It is a midsummer holiday that shows up once every four years, completely outside the flow of the week.
 
 ---
 
 ## Live Demos 🚀
 
-Both demos are built entirely on the package code. View source to see
-the reference implementation. 
-The demos support a `?24h=true` parameter to maintain your time format preference when navigating between the clock and calendar views.
+Both demos are built entirely on this package code. The UI supports a `?24h=true` parameter to maintain your time format preference when navigating between the clock and calendar views.
 
 ### 🕐 IFC Desk Clock
 
