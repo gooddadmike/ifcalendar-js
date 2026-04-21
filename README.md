@@ -48,7 +48,8 @@ have no weekday name and do not belong to any week.
 ## Live Demos 🚀
 
 Both demos are built entirely on the package code. View source to see
-the reference implementation.
+the reference implementation. 
+The demos support a `?24h=true` parameter to maintain your time format preference when navigating between the clock and calendar views.
 
 ### 🕐 IFC Desk Clock
 
