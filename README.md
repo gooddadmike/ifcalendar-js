@@ -23,11 +23,12 @@ month ends on Saturday.
 
 ** Typical Month **
 
-Sun,Mon,Tue,Wed,Thu,Fri,Sat
-1,2,3,4,5,6,7
-8,9,10,11,12,13,14
-15,16,17,18,19,20,21
-22,23,24,25,26,27,28
+| Sun | Mon | Tue | Wed | Thu | Fri | Sat |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+| 8 | 9 | 10 | 11 | 12 | 13 | 14 |
+| 15 | 16 | 17 | 18 | 19 | 20 | 21 |
+| 22 | 23 | 24 | 25 | 26 | 27 | 28 |
 
 The IFC is also known as the **Cotsworth Calendar** and the **Eastman Calendar**
 — named after Moses Cotsworth who proposed it in 1902 and George Eastman of
