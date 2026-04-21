@@ -359,14 +359,6 @@ See [CONTRIBUTING.md](https://github.com/gooddadmike/ifcalendar-js/blob/main/CON
 
 ---
 
-## Credits 🙏
-
-- [Lucide Icons](https://lucide.dev) — MIT
-- [Marked.js](https://marked.js.org) — MIT
-- [jsDelivr](https://jsdelivr.com) — free open source CDN
-
----
-
 ## License
 
 MIT
