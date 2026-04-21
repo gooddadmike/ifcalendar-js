@@ -1,7 +1,6 @@
 # ifcalendar-js 📅
 
-A lightweight JavaScript library for converting dates between the normal
-Gregorian calendar and the International Fixed Calendar (IFC).
+A lightweight JavaScript library for converting dates between the normal calendar (A.K.A Gregorian) and the fixed calendar (A.K.A. International Fixed Calendar or IFC).
 
 ---
 
@@ -11,14 +10,24 @@ Imagine if every month started on the same day of the week. Imagine knowing
 the weekday of any date instantly, without checking. No uneven month lengths,
 no holidays that drift around the calendar year after year.
 
+Also ..
+
 &nbsp;&nbsp;&nbsp;&nbsp;**... June → ☀️ Sol → July ...**
 
-And there is an extra month of summer right in the middle.
+... there is an extra month of summer right in the middle.
 
-The Gregorian calendar has months of different lengths so every month starts
-on a different weekday and a month is "about 30 days". The IFC fixes this
+The normal calendar has months of different lengths so every month starts
+on a different weekday and a month is "about 30 days". The fixed calendar solves this
 with 13 months of exactly 28 days each. Every month starts on Sunday. Every
 month ends on Saturday.
+
+** Typical Month **
+
+Sun,Mon,Tue,Wed,Thu,Fri,Sat
+1,2,3,4,5,6,7
+8,9,10,11,12,13,14
+15,16,17,18,19,20,21
+22,23,24,25,26,27,28
 
 The IFC is also known as the **Cotsworth Calendar** and the **Eastman Calendar**
 — named after Moses Cotsworth who proposed it in 1902 and George Eastman of
