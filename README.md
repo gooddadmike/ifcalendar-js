@@ -62,7 +62,13 @@ Pin either as a full-screen app with no browser chrome:
 
 ## How the Math Works 🧮
 
-Every date in a year has a position from 1 to 365 called the day of year. To find it, add the days in each month before the target date then add the day itself. March 22nd is 31 + 28 + 22 = day 81. Divide by 28 and the quotient gives the IFC month, the remainder gives the day. 81 divided by 28 is month 3 day 25, so March 22nd Gregorian is IFC March 25th. A 1 day adjustment is made for any date after Leap Day in a leap year.
+Every date in a year has a position from 1 to 365 called the day of year. 
+
+To find it, add the days in each month before the target date then add the day itself. 
+
+March 22nd is 31 + 28 + 22 = day 81. Divide by 28 and the quotient gives the IFC month, the remainder gives the day. 81 divided by 28 is month 3 day 25, so March 22nd Gregorian is IFC March 25th. 
+
+A 1 day adjustment is made for any date after Leap Day in a leap year.
 
 ---
 
@@ -159,13 +165,15 @@ isLeap(2026); // false
 
 ## CLI 💻️
 
+### Install
+
 Install globally to use the ifc command anywhere
 
 ```bash
 npm install -g ifcalendar-js
 ```
 
-### Usage 🚀
+### Usage
 
 ```bash
 ifc              # Today's date in IFC
