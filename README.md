@@ -48,7 +48,8 @@ Both demos are built entirely on this package code. The UI supports a `?24h=true
 
 [Open Calendars →](https://gooddadmike.github.io/ifcalendar-js/calendars.html)
 [View Source →](https://github.com/gooddadmike/ifcalendar-js/blob/main/docs/calendars.html)
-An interactive dual-calendar. Find any date on either side and see the equivalent instantly.
+
+> An interactive dual-calendar. Find any date on either side and see the equivalent instantly.
 
 Pin either as a full-screen app with no browser chrome:
 
