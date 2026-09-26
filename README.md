@@ -70,6 +70,20 @@ March 22nd is 31 + 28 + 22 = day 81. Divide by 28 and the quotient gives the IFC
 
 A 1 day adjustment is made for any date after Leap Day in a leap year.
 
+Two things stay exactly the same across the conversion — only the labels change:
+
+- **Day of year** is a physical position (1–365) and does not move. IFC day 260 *is* Gregorian day 260; the calendar just names it differently.
+- **Day of month**, **weekday**, and **month** are the things that get re-labeled. Day of month is the remainder of the divide-by-28, weekday is a pure function of day-of-month (`Sunday` on days 1, 8, 15, 22 …), and month is the quotient → 1-based (7 = Sol).
+
+### Intercalary day cross-reference
+
+Leap Day and Year Day are *IFC* dates (month 6 day 29 and month 13 day 29). Their Gregorian equivalent is found by their day-of-year position, not by reading "Jun 29" as Gregorian June 29:
+
+```text
+IFC Year Day   (month 13, day 29)  →  Gregorian December 31
+IFC Leap Day   (month  6, day 29)  →  Gregorian June 17 in a leap year (day 169)
+```
+
 ---
 
 ## Install 📦
